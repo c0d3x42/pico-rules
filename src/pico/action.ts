@@ -1,5 +1,5 @@
 import { IsString, IsNotEmpty, ValidateNested, IsArray } from "class-validator";
-import { Type, Expose } from "class-transformer";
+import { Type, Expose, Transform } from "class-transformer";
 import { Rule } from "./rule";
 
 export class ActionCollection extends Array<Action> {}
@@ -10,6 +10,7 @@ export abstract class Action {
 
 export class ActionRule extends Action {
   @Expose()
+  @Transform(value => value || "rule", { toClassOnly: true })
   act: string = "rule";
 
   @Expose()

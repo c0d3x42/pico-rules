@@ -17,7 +17,10 @@ const ruleDoc = {
     ],
     then: [
       { act: "setvar", varName: "pop", varValue: "john" },
-      { act: "rule", rule: { label: "subrule", if: [], then: [], else: [] } }
+      {
+        act: "rule",
+        rule: { label: "subrule", if: [{ op: "eq", token: "customer", value: "GM" }], then: [], else: [] }
+      }
     ],
     else: []
   }
