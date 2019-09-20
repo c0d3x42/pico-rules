@@ -19,7 +19,7 @@ const ruleDoc = {
 };
 
 //const rule = plainToClass(Rule, ruleDoc.rule, { excludeExtraneousValues: false });
-const rule = plainToClass(Rule, ruleDoc.rule);
+const rule = plainToClass(Rule, ruleDoc.rule, { excludeExtraneousValues: true });
 
 console.log("Rule= " + inspect(rule, false, 22));
 

@@ -7,19 +7,26 @@ export class ConditionCollection extends Array<Condition> {}
 
 export abstract class Condition {}
 export class EqualityCondition extends Condition {
+  @Expose()
   @IsDefined()
   @IsString()
   @IsNotEmpty()
   token: string | null = null;
 
+  @Expose()
   @IsDefined()
   @IsString()
   value: string | null = null;
+
+  op: string = "eq";
 }
 export class LikeCondition extends Condition {}
 
 export class ConditionList extends Condition {
+  @Transform(value => value || "list", { toClassOnly: true })
   @IsIn(["list", "eq", "like"])
+  @Expose()
+  @IsString()
   op: string = "list";
 
   /*
@@ -28,6 +35,7 @@ export class ConditionList extends Condition {
     return value;
   })
   */
+  @Expose()
   @Type(() => Condition, {
     discriminator: {
       property: "op",
@@ -42,13 +50,15 @@ export class ConditionList extends Condition {
   @IsArray()
   conditions: ConditionCollection;
 
+  @Expose()
   @ValidateIf(o => o.op === "list")
   @IsIn(["or", "and"])
-  traversal: string = "or";
+  @Transform(value => value || "or", { toClassOnly: true })
+  traversal!: string;
 
   constructor() {
     super();
     this.conditions = [];
-    this.traversal = "or";
+    //this.traversal = "or";
   }
 }
