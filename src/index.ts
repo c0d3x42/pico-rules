@@ -9,6 +9,7 @@ import { Context } from "./pico/context";
 const ruleDoc = {
   label: "some rule",
   if: [
+    { op: "like", token: "summary", value: "(?<first>[a-z]+) (?<second>[a-z]+)" },
     { op: "eq", token: "node", value: "localhost", lop: 1 },
     {
       op: "list",
@@ -38,6 +39,7 @@ validate(rule)
 
     let context = new Context();
     context.tokens.set("node", "localhost");
+    context.tokens.set("summary", "hello world");
 
     rule.exec(context);
     const plain = classToPlain(rule);

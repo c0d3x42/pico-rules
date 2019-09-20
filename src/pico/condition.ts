@@ -1,7 +1,7 @@
 import { Type, Transform, Expose } from "class-transformer";
 import { IsDefined, IsString, IsIn, ValidateNested, IsNumber, IsArray, ValidateIf, IsNotEmpty } from "class-validator";
 import "reflect-metadata";
-import { inspect } from "util";
+import { inspect, isRegExp } from "util";
 import { Context } from "./context";
 
 export class ConditionCollection extends Array<Condition> {}
@@ -38,7 +38,43 @@ export class EqualityCondition extends Condition {
 export class LikeCondition extends Condition {
   op: string = "like";
 
+  @Expose()
+  @IsDefined()
+  @IsString()
+  @IsNotEmpty()
+  token: string | null = null;
+
+  @Expose()
+  @IsDefined()
+  @IsString()
+  value: string = "";
+
+  valueRE?: RegExp;
+
+  constructor() {
+    super();
+  }
+
   public exec(context: Context): boolean {
+    if (!this.valueRE) {
+      this.valueRE = new RegExp(this.value);
+    }
+    console.log("RE " + inspect(this.valueRE, false, 12));
+    if (this.token === null) {
+      return false;
+    }
+    const comparisonValue = context.tokens.get(this.token);
+    console.log("Comparing " + comparisonValue);
+    if (comparisonValue) {
+      const matches = this.valueRE.exec(comparisonValue);
+      console.log("matches " + inspect(matches, false, 12));
+
+      if (matches && matches.groups) {
+        const m = new Map(Object.entries(matches.groups));
+        context.locals = m;
+      }
+      return Boolean(matches);
+    }
     return false;
   }
 }
