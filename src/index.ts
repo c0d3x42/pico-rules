@@ -8,13 +8,15 @@ import { Rule } from "./pico";
 const ruleDoc = {
   rule: {
     label: "some rule",
-    entry: [
+    if: [
       { op: "eq", token: "node", value: "localhost", lop: 1 },
       {
         op: "list",
         conditions: [{ op: "list", traversal: "and", conditions: [{ op: "eq", token: "group", value: "production" }] }]
       }
-    ]
+    ],
+    then: [{ act: "setvar", varName: "pop", varValue: "john" }],
+    else: []
   }
 };
 
