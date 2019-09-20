@@ -15,7 +15,10 @@ const ruleDoc = {
         conditions: [{ op: "list", traversal: "and", conditions: [{ op: "eq", token: "group", value: "production" }] }]
       }
     ],
-    then: [{ act: "setvar", varName: "pop", varValue: "john" }],
+    then: [
+      { act: "setvar", varName: "pop", varValue: "john" },
+      { act: "rule", rule: { label: "subrule", if: [], then: [], else: [] } }
+    ],
     else: []
   }
 };
