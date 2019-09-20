@@ -5,7 +5,10 @@ import { inspect } from "util";
 
 export class ConditionCollection extends Array<Condition> {}
 
-export abstract class Condition {}
+export abstract class Condition {
+  @IsDefined()
+  abstract op: string;
+}
 export class EqualityCondition extends Condition {
   @Expose()
   @IsDefined()
@@ -20,7 +23,9 @@ export class EqualityCondition extends Condition {
 
   op: string = "eq";
 }
-export class LikeCondition extends Condition {}
+export class LikeCondition extends Condition {
+  op: string = "like";
+}
 
 export class ConditionList extends Condition {
   @Transform(value => value || "list", { toClassOnly: true })

@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { plainToClass } from "class-transformer";
+import { plainToClass, classToPlain } from "class-transformer";
 import { inspect } from "util";
 import { validate } from "class-validator";
 
@@ -26,6 +26,9 @@ console.log("Rule= " + inspect(rule, false, 22));
 validate(rule)
   .then(validatedRule => {
     console.log("Rule validated" + validatedRule);
+
+    const plain = classToPlain(rule);
+    console.log("PLAIN1: " + inspect(plain, false, 22));
   })
   .catch(err => {
     console.log("Failed validations\n" + err);
