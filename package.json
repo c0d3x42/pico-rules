@@ -1,0 +1,19 @@
+{
+  "name": "pico-rules",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^12.7.5",
+    "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "class-transformer": "^0.2.3",
+    "reflect-metadata": "^0.1.13"
+  }
+}
