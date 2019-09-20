@@ -1,11 +1,13 @@
 import { IsString, IsNotEmpty, ValidateNested, IsArray } from "class-validator";
 import { Type, Expose, Transform } from "class-transformer";
 import { Rule } from "./rule";
+import { Context } from "./context";
 
 export class ActionCollection extends Array<Action> {}
 
 export abstract class Action {
   abstract act: string;
+  abstract exec(context: Context): boolean;
 }
 
 export class ActionRule extends Action {
@@ -22,6 +24,11 @@ export class ActionRule extends Action {
     super();
     this.rule = new Rule();
   }
+
+  public exec(context: Context) {
+    this.rule.exec(context);
+    return true;
+  }
 }
 
 export class ActionSetVar extends Action {
@@ -34,6 +41,12 @@ export class ActionSetVar extends Action {
   varValue: string = "";
 
   act: string = "setvar";
+
+  public exec(context: Context) {
+    console.log("Setting " + this.varName + " to " + this.varValue);
+    context.tokens.set(this.varName, this.varValue);
+    return true;
+  }
 }
 
 export class ActionList extends Action {
@@ -50,4 +63,8 @@ export class ActionList extends Action {
     }
   })
   actions: ActionCollection = [];
+
+  public exec() {
+    return true;
+  }
 }

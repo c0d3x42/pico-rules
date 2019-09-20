@@ -2,12 +2,15 @@ import { Type, Transform, Expose } from "class-transformer";
 import { IsDefined, IsString, IsIn, ValidateNested, IsNumber, IsArray, ValidateIf, IsNotEmpty } from "class-validator";
 import "reflect-metadata";
 import { inspect } from "util";
+import { Context } from "./context";
 
 export class ConditionCollection extends Array<Condition> {}
 
 export abstract class Condition {
   @IsDefined()
   abstract op: string;
+
+  abstract exec(context: Context): boolean;
 }
 export class EqualityCondition extends Condition {
   @Expose()
@@ -22,9 +25,22 @@ export class EqualityCondition extends Condition {
   value: string | null = null;
 
   op: string = "eq";
+
+  public exec(context: Context): boolean {
+    if (this.token === null) {
+      return false;
+    }
+    const result: boolean = this.value === context.tokens.get(this.token);
+    console.log("looking for " + this.token, result);
+    return result;
+  }
 }
 export class LikeCondition extends Condition {
   op: string = "like";
+
+  public exec(context: Context): boolean {
+    return false;
+  }
 }
 
 export class ConditionList extends Condition {
@@ -65,5 +81,19 @@ export class ConditionList extends Condition {
     super();
     this.conditions = [];
     //this.traversal = "or";
+  }
+
+  public exec(context: Context): boolean {
+    if (this.traversal === "or") {
+      return Boolean(
+        this.conditions.find(condition => {
+          return condition.exec(context);
+        })
+      );
+    } else if (this.traversal === "and") {
+      return Boolean(this.conditions.every(condition => condition.exec(context)));
+    } else {
+      return false;
+    }
   }
 }

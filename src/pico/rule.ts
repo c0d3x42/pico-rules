@@ -1,7 +1,8 @@
 import { Type, Expose } from "class-transformer";
-import { ConditionList, Condition, EqualityCondition } from "./condition";
+import { ConditionList, Condition, EqualityCondition, ConditionCollection } from "./condition";
 import { ValidateNested, IsDefined, IsNumber, IsArray, IsString } from "class-validator";
-import { ActionList, Action, ActionRule, ActionSetVar } from "./action";
+import { ActionList, Action, ActionRule, ActionSetVar, ActionCollection } from "./action";
+import { Context } from "./context";
 
 export class Rule {
   @Type(() => Condition, {
@@ -14,7 +15,7 @@ export class Rule {
   @IsArray()
   @IsDefined()
   @ValidateNested()
-  entry: ConditionList;
+  entry: ConditionCollection;
 
   @Expose()
   @IsDefined()
@@ -29,14 +30,26 @@ export class Rule {
     }
   })
   @ValidateNested()
-  disposition_then: ActionList;
+  disposition_then: ActionCollection;
 
   @Expose({ name: "else" })
   disposition_else: ActionList;
 
   constructor() {
-    this.entry = new ConditionList();
-    this.disposition_then = new ActionList();
+    this.entry = new ConditionCollection();
+    this.disposition_then = new ActionCollection();
     this.disposition_else = new ActionList();
+  }
+
+  public exec(context: Context) {
+    if (
+      this.entry.find(condition => {
+        return condition.exec(context);
+      })
+    ) {
+      console.log("Condition matched");
+      this.disposition_then.forEach(action => action.exec(context));
+    } else {
+    }
   }
 }
