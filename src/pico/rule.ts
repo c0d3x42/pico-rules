@@ -19,7 +19,7 @@ export class Rule {
   @IsArray()
   @IsDefined()
   @ValidateNested()
-  entry: ConditionCollection;
+  entry: ConditionCollection = [];
 
   @Expose()
   @IsDefined()
@@ -34,7 +34,7 @@ export class Rule {
     }
   })
   @ValidateNested()
-  disposition_then: ActionCollection;
+  disposition_then: ActionCollection = [];
 
   @Expose({ name: "else" })
   @Type(() => Action, {
@@ -44,13 +44,7 @@ export class Rule {
     }
   })
   @ValidateNested()
-  disposition_else: ActionCollection;
-
-  constructor() {
-    this.entry = new ConditionCollection();
-    this.disposition_then = new ActionCollection();
-    this.disposition_else = new ActionCollection();
-  }
+  disposition_else: ActionCollection = [];
 
   public exec(context: Context) {
     if (

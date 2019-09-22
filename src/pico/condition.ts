@@ -35,6 +35,7 @@ export class EqualityCondition extends Condition {
     return result;
   }
 }
+
 export class LikeCondition extends Condition {
   op: string = "like";
 
@@ -50,10 +51,6 @@ export class LikeCondition extends Condition {
   value: string = "";
 
   valueRE?: RegExp;
-
-  constructor() {
-    super();
-  }
 
   public exec(context: Context): boolean {
     if (!this.valueRE) {
@@ -105,19 +102,13 @@ export class ConditionList extends Condition {
   })
   @ValidateNested()
   @IsArray()
-  conditions: ConditionCollection;
+  conditions: ConditionCollection = [];
 
   @Expose()
   @ValidateIf(o => o.op === "list")
   @IsIn(["or", "and"])
   @Transform(value => value || "or", { toClassOnly: true })
   traversal!: string;
-
-  constructor() {
-    super();
-    this.conditions = [];
-    //this.traversal = "or";
-  }
 
   public exec(context: Context): boolean {
     if (this.traversal === "or") {
