@@ -3,6 +3,7 @@ import { IsDefined, IsString, IsIn, ValidateNested, IsNumber, IsArray, ValidateI
 import "reflect-metadata";
 import { inspect, isRegExp } from "util";
 import { Context } from "./context";
+import { v4 } from "uuid";
 
 export class ConditionCollection extends Array<Condition> {}
 
@@ -10,7 +11,13 @@ export abstract class Condition {
   @IsDefined()
   abstract op: string;
 
+  // must implement
   abstract exec(context: Context): boolean;
+
+  @Expose()
+  @Transform(value => value || v4())
+  id: string = "";
+
 }
 export class EqualityCondition extends Condition {
   @Expose()
