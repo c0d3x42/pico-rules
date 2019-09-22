@@ -1,10 +1,15 @@
 import "reflect-metadata";
-import { plainToClass, classToPlain } from "class-transformer";
+
+import { container } from "./pico/inversify.config";
+
+import { classToPlain, plainToClassFromExist } from "class-transformer";
 import { inspect } from "util";
 import { validate } from "class-validator";
 
 import { Rule, PicoEngine } from "./pico";
 import { Context } from "./pico/context";
+import { TYPES } from "./pico/types";
+import { Engine } from "./pico/interfaces";
 
 const ruleDoc = {
   label: "some rule",
@@ -28,8 +33,10 @@ const ruleDoc = {
 
 const picoRules = { main: [ruleDoc] };
 
+const engine = container.get<Engine>(TYPES.PicoEngine);
+
 //const rule = plainToClass(Rule, ruleDoc.rule, { excludeExtraneousValues: false });
-const rule = plainToClass(PicoEngine, picoRules, { excludeExtraneousValues: true });
+const rule = plainToClassFromExist(engine, picoRules, { excludeExtraneousValues: true });
 
 console.log("Rule= " + inspect(rule, false, 22));
 
