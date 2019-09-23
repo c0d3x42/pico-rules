@@ -1,13 +1,23 @@
-import { IsString, IsNotEmpty, ValidateNested, IsArray } from "class-validator";
+import { IsString, IsNotEmpty, ValidateNested, IsArray, IsDefined, IsAlpha, Length } from "class-validator";
 import { Type, Expose, Transform } from "class-transformer";
 import { Rule } from "./rule";
 import { Context } from "./context";
+import { compile } from "handlebars";
 
 export class ActionCollection extends Array<Action> {}
 
 export abstract class Action {
   abstract act: string;
-  abstract exec(context: Context): boolean;
+
+  public abstract _exec(context: Context): boolean;
+  exec(context: Context): boolean {
+    if (this._exec) {
+      return this._exec(context);
+    }
+    console.log(`Missing exec on [${this.act}]`);
+    return false;
+  }
+  init(): void {}
 }
 
 export class ActionRule extends Action {
@@ -25,7 +35,7 @@ export class ActionRule extends Action {
     this.rule = new Rule();
   }
 
-  public exec(context: Context) {
+  public _exec(context: Context) {
     this.rule.exec(context);
     return true;
   }
@@ -42,9 +52,42 @@ export class ActionSetVar extends Action {
 
   act: string = "setvar";
 
-  public exec(context: Context) {
+  public _exec(context: Context) {
     console.log("Setting " + this.varName + " to " + this.varValue);
     context.tokens.set(this.varName, this.varValue);
+    return true;
+  }
+}
+
+export class ActionSetTemplated extends Action {
+  @IsString()
+  @IsAlpha()
+  @IsDefined()
+  @IsNotEmpty()
+  @Expose()
+  varName: string = "";
+
+  @IsString()
+  @IsDefined()
+  @Expose({ name: "template" })
+  templateSource: string = "";
+
+  private compiledTemplate: Handlebars.TemplateDelegate | undefined;
+
+  act: string = "template";
+
+  public init() {
+    if (!this.compiledTemplate) {
+      this.compiledTemplate = compile(this.templateSource);
+    }
+  }
+
+  public _exec(context: Context) {
+    this.init();
+    if (this.compiledTemplate) {
+      const tokenValues = Object.fromEntries(context.tokens);
+      const templatedOutput = context.tokens.set(this.varName, this.compiledTemplate(tokenValues));
+    }
     return true;
   }
 }
@@ -64,7 +107,7 @@ export class ActionList extends Action {
   })
   actions: ActionCollection = [];
 
-  public exec() {
+  public _exec() {
     return true;
   }
 }

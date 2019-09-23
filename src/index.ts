@@ -6,7 +6,7 @@ import { classToPlain, plainToClassFromExist } from "class-transformer";
 import { inspect } from "util";
 import { validate } from "class-validator";
 
-import { Rule, PicoEngine } from "./pico";
+import { EngineManager } from "./pico";
 import { Context } from "./pico/context";
 import { TYPES } from "./pico/types";
 import { Engine } from "./pico/interfaces";
@@ -23,6 +23,7 @@ const ruleDoc = {
   ],
   then: [
     { act: "setvar", varName: "pop", varValue: "john" },
+    { act: "template", varName: "popppy", template: "from node {{node}}" },
     {
       act: "rule",
       rule: { label: "subrule", if: [{ op: "eq", token: "customer", value: "GM" }], then: [], else: [] }
@@ -33,25 +34,13 @@ const ruleDoc = {
 
 const picoRules = { main: [ruleDoc] };
 
-const engine = container.get<Engine>(TYPES.PicoEngine);
+const em = new EngineManager();
+em.load(picoRules).then(engine => {
+  let context = new Context();
+  context.tokens.set("node", "localhost");
+  context.tokens.set("summary", "hello world");
 
-//const rule = plainToClass(Rule, ruleDoc.rule, { excludeExtraneousValues: false });
-const rule = plainToClassFromExist(engine, picoRules, { excludeExtraneousValues: true });
-
-console.log("Rule= " + inspect(rule, false, 22));
-
-validate(rule)
-  .then(validatedRule => {
-    console.log("Rule validated" + validatedRule);
-
-    let context = new Context();
-    context.tokens.set("node", "localhost");
-    context.tokens.set("summary", "hello world");
-
-    rule.exec(context);
-    const plain = classToPlain(rule);
-    console.log("PLAIN1: " + inspect(plain, false, 22));
-  })
-  .catch(err => {
-    console.log("Failed validations\n" + err);
-  });
+  engine.exec(context);
+  console.log("CTX tokens: ", Object.fromEntries(context.tokens));
+  console.log("CTX locals: ", Object.fromEntries(context.locals));
+});

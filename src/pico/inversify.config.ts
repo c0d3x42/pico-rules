@@ -1,7 +1,7 @@
 import { Container, injectable } from "inversify";
 import { TYPES } from "./types";
 import { IdGenerator, Engine } from "./interfaces";
-import { PicoEngine } from "./index";
+import { PicoEngine } from "./engine";
 import { UuidGenerator, NanoIdGenerator } from "./id-generator";
 
 const container = new Container();

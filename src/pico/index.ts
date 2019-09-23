@@ -1,40 +1,28 @@
-import * as moment from "moment";
-import { Moment } from "moment";
-
-import { Rule } from "./rule";
-import { Type, Transform, Expose } from "class-transformer";
-import { Context } from "./context";
-import { injectable, inject } from "inversify";
+import { container } from "./inversify.config";
 import { TYPES } from "./types";
-import { IdGenerator } from "./interfaces";
-export { Rule };
+import { plainToClassFromExist } from "class-transformer";
+import { validate } from "class-validator";
+import { PicoEngine } from "./engine";
+import { readFileSync } from "fs";
 
-export class RuleCollection extends Array<Rule> {}
+export class EngineManager {
+  ruleDoc: Object = {};
 
-@injectable()
-export class PicoEngine {
-  @Expose({ name: "global" })
-  globalRules: RuleCollection = [];
+  public load(rulesDocument: Object): Promise<PicoEngine> {
+    const engine = container.get<PicoEngine>(TYPES.PicoEngine);
+    const rule = plainToClassFromExist(engine, rulesDocument, { excludeExtraneousValues: true });
 
-  @Expose({ name: "main" })
-  @Type(() => Rule)
-  mainRules: RuleCollection = [];
-
-  /*
-  @Type(() => Date)
-  @Transform(value => moment.default(value), { toClassOnly: true })
-  created_at!: Moment;
-
-  @Type(() => Date)
-  @Transform(value => moment.default(value), { toClassOnly: true })
-  loaded_at: Moment = moment.default();
-*/
-  constructor(@inject(TYPES.IdGenerator) private readonly idGen: IdGenerator) {
-    //this.created_at = moment.default();
+    return validate(rule).then(validationErrors => {
+      if (validationErrors.length > 0) {
+        throw validationErrors;
+      }
+      this.ruleDoc = rulesDocument;
+      return rule;
+    });
   }
 
-  public exec(context: Context): void {
-    console.log("ID = " + this.idGen.generate());
-    this.mainRules.forEach(rule => rule.exec(context));
+  public loadFromFile(filenamePath: string): Promise<PicoEngine> {
+    const document = readFileSync(filenamePath, { encoding: "UTF8" });
+    return this.load(document);
   }
 }

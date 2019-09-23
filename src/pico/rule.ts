@@ -1,7 +1,7 @@
 import { Type, Expose } from "class-transformer";
 import { ConditionList, Condition, EqualityCondition, ConditionCollection, LikeCondition } from "./condition";
 import { ValidateNested, IsDefined, IsNumber, IsArray, IsString } from "class-validator";
-import { ActionList, Action, ActionRule, ActionSetVar, ActionCollection } from "./action";
+import { ActionList, Action, ActionRule, ActionSetVar, ActionCollection, ActionSetTemplated } from "./action";
 import { Context } from "./context";
 
 export class Rule {
@@ -30,7 +30,11 @@ export class Rule {
   @Type(() => Action, {
     discriminator: {
       property: "act",
-      subTypes: [{ value: ActionRule, name: "rule" }, { name: "setvar", value: ActionSetVar }]
+      subTypes: [
+        { value: ActionRule, name: "rule" },
+        { name: "setvar", value: ActionSetVar },
+        { name: "template", value: ActionSetTemplated }
+      ]
     }
   })
   @ValidateNested()
@@ -40,7 +44,11 @@ export class Rule {
   @Type(() => Action, {
     discriminator: {
       property: "act",
-      subTypes: [{ value: ActionRule, name: "rule" }, { name: "setvar", value: ActionSetVar }]
+      subTypes: [
+        { value: ActionRule, name: "rule" },
+        { name: "setvar", value: ActionSetVar },
+        { name: "template", value: ActionSetTemplated }
+      ]
     }
   })
   @ValidateNested()
