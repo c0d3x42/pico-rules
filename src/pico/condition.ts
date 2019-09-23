@@ -4,6 +4,7 @@ import "reflect-metadata";
 import { inspect, isRegExp } from "util";
 import { Context } from "./context";
 import { v4 } from "uuid";
+import { logVisit } from "./decorators";
 
 export class ConditionCollection extends Array<Condition> {}
 
@@ -11,14 +12,17 @@ export abstract class Condition {
   @IsDefined()
   abstract op: string;
 
+  abstract _exec(context: Context): boolean;
   // must implement
-  abstract exec(context: Context): boolean;
+  public exec(context: Context): boolean {
+    return this._exec(context) && context.logVisit(this.id);
+  }
 
   @Expose()
   @Transform(value => value || v4())
   id: string = "";
-
 }
+
 export class EqualityCondition extends Condition {
   @Expose()
   @IsDefined()
@@ -33,12 +37,13 @@ export class EqualityCondition extends Condition {
 
   op: string = "eq";
 
-  public exec(context: Context): boolean {
+  _exec(context: Context): boolean {
     if (this.token === null) {
       return false;
     }
     const result: boolean = this.value === context.tokens.get(this.token);
     console.log("looking for " + this.token, result);
+    //return result && context.logVisit(this.id);
     return result;
   }
 }
@@ -59,7 +64,7 @@ export class LikeCondition extends Condition {
 
   valueRE?: RegExp;
 
-  public exec(context: Context): boolean {
+  _exec(context: Context): boolean {
     if (!this.valueRE) {
       this.valueRE = new RegExp(this.value);
     }
@@ -117,11 +122,11 @@ export class ConditionList extends Condition {
   @Transform(value => value || "or", { toClassOnly: true })
   traversal!: string;
 
-  public exec(context: Context): boolean {
+  public _exec(context: Context): boolean {
     if (this.traversal === "or") {
       return Boolean(
         this.conditions.find(condition => {
-          return condition.exec(context);
+          return condition.exec(context) && context.logVisit(condition.id);
         })
       );
     } else if (this.traversal === "and") {
