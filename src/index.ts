@@ -1,15 +1,9 @@
 import "reflect-metadata";
 
-import { container } from "./pico/inversify.config";
-
-import { classToPlain, plainToClassFromExist } from "class-transformer";
 import { inspect } from "util";
-import { validate } from "class-validator";
 
 import { EngineManager } from "./pico";
 import { Context } from "./pico/context";
-import { TYPES } from "./pico/types";
-import { Engine } from "./pico/interfaces";
 
 const ruleDoc = {
   label: "some rule",
@@ -35,12 +29,17 @@ const ruleDoc = {
 const picoRules = { main: [ruleDoc] };
 
 const em = new EngineManager();
-em.load(picoRules).then(engine => {
-  let context = new Context();
-  context.tokens.set("node", "localhost");
-  context.tokens.set("summary", "hello world");
+//em.load(picoRules).then(engine => {
+em.loadFromFile("rules.json")
+  .then(engine => {
+    let context = new Context();
+    context.tokens.set("node", "localhost");
+    context.tokens.set("summary", "hello world");
 
-  engine.exec(context);
-  console.log("CTX tokens: ", Object.fromEntries(context.tokens));
-  console.log("CTX locals: ", Object.fromEntries(context.locals));
-});
+    engine.exec(context);
+    console.log("CTX tokens: ", Object.fromEntries(context.tokens));
+    console.log("CTX locals: ", Object.fromEntries(context.locals));
+  })
+  .catch(err => {
+    console.log("Errors ", err);
+  });

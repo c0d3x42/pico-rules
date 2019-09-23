@@ -4,6 +4,9 @@ import { ValidateNested, IsDefined, IsNumber, IsArray, IsString } from "class-va
 import { ActionList, Action, ActionRule, ActionSetVar, ActionCollection, ActionSetTemplated } from "./action";
 import { Context } from "./context";
 
+import { debug as debugLogger } from "debug";
+const debug = debugLogger("Rule");
+
 export class Rule {
   @Type(() => Condition, {
     discriminator: {
@@ -60,10 +63,10 @@ export class Rule {
         return condition.exec(context);
       })
     ) {
-      console.log("Condition matched");
+      debug("Condition matched");
       this.disposition_then.forEach(action => action.exec(context));
     } else {
-      console.log("Condition did not match");
+      debug("Condition did not match");
       this.disposition_else.forEach(action => action.exec(context));
     }
   }

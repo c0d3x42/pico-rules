@@ -4,6 +4,9 @@ import { Rule } from "./rule";
 import { Context } from "./context";
 import { compile } from "handlebars";
 
+import { debug as debugLogger } from "debug";
+const debug = debugLogger("Actions");
+
 export class ActionCollection extends Array<Action> {}
 
 export abstract class Action {
@@ -14,7 +17,8 @@ export abstract class Action {
     if (this._exec) {
       return this._exec(context);
     }
-    console.log(`Missing exec on [${this.act}]`);
+    debug("Missing exec()");
+
     return false;
   }
   init(): void {}
@@ -36,6 +40,7 @@ export class ActionRule extends Action {
   }
 
   public _exec(context: Context) {
+    debug(`executing ActionRule `);
     this.rule.exec(context);
     return true;
   }
@@ -53,7 +58,7 @@ export class ActionSetVar extends Action {
   act: string = "setvar";
 
   public _exec(context: Context) {
-    console.log("Setting " + this.varName + " to " + this.varValue);
+    debug(`executing ActionSetVar [${this.varName}] = [${this.varValue}]`);
     context.tokens.set(this.varName, this.varValue);
     return true;
   }
@@ -83,6 +88,7 @@ export class ActionSetTemplated extends Action {
   }
 
   public _exec(context: Context) {
+    debug(`executing ActionSetTemplated `);
     this.init();
     if (this.compiledTemplate) {
       const tokenValues = Object.fromEntries(context.tokens);
@@ -108,6 +114,7 @@ export class ActionList extends Action {
   actions: ActionCollection = [];
 
   public _exec() {
+    debug(`executing ActionList `);
     return true;
   }
 }

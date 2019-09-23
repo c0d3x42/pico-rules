@@ -22,7 +22,14 @@ export class EngineManager {
   }
 
   public loadFromFile(filenamePath: string): Promise<PicoEngine> {
-    const document = readFileSync(filenamePath, { encoding: "UTF8" });
+    let document;
+    try {
+      const jsonDocument = readFileSync(filenamePath, { encoding: "UTF8" });
+      document = JSON.parse(jsonDocument);
+    } catch (e) {
+      return Promise.reject("Failed to parse: " + e);
+    }
+
     return this.load(document);
   }
 }

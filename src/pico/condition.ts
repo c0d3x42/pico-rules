@@ -4,7 +4,9 @@ import "reflect-metadata";
 import { inspect, isRegExp } from "util";
 import { Context } from "./context";
 import { v4 } from "uuid";
-import { logVisit } from "./decorators";
+import { debug as debugLogger } from "debug";
+
+const debug = debugLogger("Conditions");
 
 export class ConditionCollection extends Array<Condition> {}
 
@@ -42,8 +44,8 @@ export class EqualityCondition extends Condition {
       return false;
     }
     const result: boolean = this.value === context.tokens.get(this.token);
-    console.log("looking for " + this.token, result);
-    //return result && context.logVisit(this.id);
+
+    debug(`Equality with ${this.token}`);
     return result;
   }
 }
@@ -68,17 +70,18 @@ export class LikeCondition extends Condition {
     if (!this.valueRE) {
       this.valueRE = new RegExp(this.value);
     }
-    console.log("RE " + inspect(this.valueRE, false, 12));
+    debug(`Like with ${this.value}`);
     if (this.token === null) {
       return false;
     }
     const comparisonValue = context.tokens.get(this.token);
-    console.log("Comparing " + comparisonValue);
+    debug(`Like comparing ${comparisonValue}`);
+
     if (comparisonValue) {
       const matches = this.valueRE.exec(comparisonValue);
-      console.log("matches " + inspect(matches, false, 12));
 
       if (matches && matches.groups) {
+        debug(`Like found some matches `);
         const m = new Map(Object.entries(matches.groups));
         context.locals = m;
       }
