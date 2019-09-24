@@ -4,6 +4,7 @@ import { inspect } from "util";
 
 import { EngineManager } from "./pico";
 import { Context } from "./pico/context";
+import { FsProvider } from "./providers/fs-provider";
 
 const ruleDoc = {
   label: "some rule",
@@ -43,3 +44,10 @@ em.loadFromFile("rules.json")
   .catch(err => {
     console.log("Errors ", err);
   });
+/*
+const fp = new FsProvider("rules.json");
+
+fp.emit().subscribe(f => {
+  console.log("loaded file", f);
+});
+*/

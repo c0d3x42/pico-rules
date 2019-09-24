@@ -5,6 +5,8 @@ import { validate } from "class-validator";
 import { PicoEngine } from "./engine";
 import { readFileSync } from "fs";
 
+import { FsProvider } from "../providers/fs-provider";
+
 export class EngineManager {
   ruleDoc: Object = {};
 
@@ -22,14 +24,10 @@ export class EngineManager {
   }
 
   public loadFromFile(filenamePath: string): Promise<PicoEngine> {
-    let document;
-    try {
-      const jsonDocument = readFileSync(filenamePath, { encoding: "UTF8" });
-      document = JSON.parse(jsonDocument);
-    } catch (e) {
-      return Promise.reject("Failed to parse: " + e);
-    }
+    const fsp = new FsProvider(filenamePath);
 
-    return this.load(document);
+    return fsp.emit().then(file => {
+      return this.load(file);
+    });
   }
 }
