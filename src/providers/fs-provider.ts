@@ -1,6 +1,7 @@
 import { promises as fsp } from "fs";
 import { from, Observable } from "rxjs";
 import { watch } from "chokidar";
+import { switchMap, map } from "rxjs/operators";
 
 export class Provider {}
 
@@ -24,16 +25,17 @@ export class FsProvider extends Provider {
 }
 
 export class FsWatchProvider extends FsProvider {
-  public emit(): Observable<object> {
+  public emit() {
     const watchedFile = watch(this.filepath);
 
-    const file$ = new Observable<object>(observer => {
-      observer.next(this.ready());
-
-      watchedFile.on("add", () => {
-        observer.next(this.ready());
+    const file$ = new Observable<string>(observer => {
+      observer.next(this.filepath);
+      watchedFile.on("change", () => {
+        console.log(`Changed [${this.filepath}]`);
+        observer.next(this.filepath);
       });
-    });
+    }).pipe(switchMap(s => this.ready()));
+
     return file$;
   }
 }

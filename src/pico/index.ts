@@ -7,7 +7,7 @@ import { readFileSync } from "fs";
 import { map, switchMap } from "rxjs/operators";
 import { from } from "rxjs";
 
-import { FsProvider } from "../providers/fs-provider";
+import { FsProvider, FsWatchProvider } from "../providers/fs-provider";
 
 export class EngineManager {
   ruleDoc: Object = {};
@@ -26,13 +26,21 @@ export class EngineManager {
   }
 
   public loadFromFile(filenamePath: string) {
-    const fsp = new FsProvider(filenamePath);
+    const fsw = new FsWatchProvider(filenamePath);
+    return fsw.emit().pipe(
+      switchMap(jsonDoc => {
+        console.log("FSW: ", jsonDoc);
 
+        return from(this.load(jsonDoc));
+      })
+    );
+    /*
     return fsp.emit().pipe(
       switchMap(jsonDoc => {
         const picoPromise = this.load(jsonDoc);
         return from(picoPromise);
       })
     );
+    */
   }
 }
