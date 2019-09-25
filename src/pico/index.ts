@@ -4,6 +4,8 @@ import { plainToClassFromExist } from "class-transformer";
 import { validate } from "class-validator";
 import { PicoEngine } from "./engine";
 import { readFileSync } from "fs";
+import { map, switchMap } from "rxjs/operators";
+import { from } from "rxjs";
 
 import { FsProvider } from "../providers/fs-provider";
 
@@ -23,11 +25,14 @@ export class EngineManager {
     });
   }
 
-  public loadFromFile(filenamePath: string): Promise<PicoEngine> {
+  public loadFromFile(filenamePath: string) {
     const fsp = new FsProvider(filenamePath);
 
-    return fsp.emit().then(file => {
-      return this.load(file);
-    });
+    return fsp.emit().pipe(
+      switchMap(jsonDoc => {
+        const picoPromise = this.load(jsonDoc);
+        return from(picoPromise);
+      })
+    );
   }
 }

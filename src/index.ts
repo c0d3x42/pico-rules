@@ -13,26 +13,26 @@ const ruleDoc = {
     { op: "eq", token: "node", value: "localhost", lop: 1 },
     {
       op: "list",
-      conditions: [{ op: "list", traversal: "and", conditions: [{ op: "eq", token: "group", value: "production" }] }]
-    }
+      conditions: [{ op: "list", traversal: "and", conditions: [{ op: "eq", token: "group", value: "production" }] }],
+    },
   ],
   then: [
     { act: "setvar", varName: "pop", varValue: "john" },
     { act: "template", varName: "popppy", template: "from node {{node}}" },
     {
       act: "rule",
-      rule: { label: "subrule", if: [{ op: "eq", token: "customer", value: "GM" }], then: [], else: [] }
-    }
+      rule: { label: "subrule", if: [{ op: "eq", token: "customer", value: "GM" }], then: [], else: [] },
+    },
   ],
-  else: []
+  else: [],
 };
 
 const picoRules = { main: [ruleDoc] };
 
 const em = new EngineManager();
 //em.load(picoRules).then(engine => {
-em.loadFromFile("rules.json")
-  .then(engine => {
+em.loadFromFile("rules.json").subscribe(
+  engine => {
     let context = new Context();
     context.tokens.set("node", "localhost");
     context.tokens.set("summary", "hello world");
@@ -40,10 +40,11 @@ em.loadFromFile("rules.json")
     engine.exec(context);
     console.log("CTX tokens: ", Object.fromEntries(context.tokens));
     console.log("CTX locals: ", Object.fromEntries(context.locals));
-  })
-  .catch(err => {
-    console.log("Errors ", err);
-  });
+  },
+  err => {
+    console.log("failure", err);
+  }
+);
 /*
 const fp = new FsProvider("rules.json");
 

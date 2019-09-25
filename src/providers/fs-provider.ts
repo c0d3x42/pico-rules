@@ -1,10 +1,11 @@
-import { readFile, promises as fsp } from "fs";
-import { from } from "rxjs";
+import { promises as fsp } from "fs";
+import { from, Observable } from "rxjs";
+import { watch } from "chokidar";
 
 export class Provider {}
 
 export class FsProvider extends Provider {
-  constructor(private readonly filepath: string) {
+  constructor(protected readonly filepath: string) {
     super();
   }
 
@@ -15,9 +16,24 @@ export class FsProvider extends Provider {
     });
   }
 
-  public emit() {
+  public emit(): Observable<Object> {
     const obs = from(this.ready());
 
-    return obs.toPromise();
+    return obs;
+  }
+}
+
+export class FsWatchProvider extends FsProvider {
+  public emit(): Observable<object> {
+    const watchedFile = watch(this.filepath);
+
+    const file$ = new Observable<object>(observer => {
+      observer.next(this.ready());
+
+      watchedFile.on("add", () => {
+        observer.next(this.ready());
+      });
+    });
+    return file$;
   }
 }
