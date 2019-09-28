@@ -1,45 +1,37 @@
 import { promises as fsp } from "fs";
-import { from, Observable, of } from "rxjs";
+import { from, Observable, of, Subject } from "rxjs";
 import { watch } from "chokidar";
-import { switchMap, map, catchError } from "rxjs/operators";
+import { switchMap, map, catchError, retry } from "rxjs/operators";
+import { BasicJsonRules } from "../pico/interfaces";
 
-export class Provider {}
+export abstract class Provider {
+  abstract emit(): Observable<BasicJsonRules>;
+}
 
 export class FsProvider extends Provider {
   constructor(protected readonly filepath: string) {
     super();
   }
 
-  public ready() {
+  private ready() {
     return fsp.readFile(this.filepath, "utf-8").then(fileBuffer => {
-      const obj: Object = JSON.parse(fileBuffer);
+      const obj: BasicJsonRules = JSON.parse(fileBuffer);
       return obj;
     });
   }
 
-  public emit(): Observable<Object> {
-    const obs = from(this.ready());
-
-    return obs;
-  }
-}
-
-export class FsWatchProvider extends FsProvider {
-  public emit() {
+  public emit(): Observable<BasicJsonRules> {
     const watchedFile = watch(this.filepath);
 
     const file$ = new Observable<string>(observer => {
-      observer.next(this.filepath);
       watchedFile.on("change", () => {
         console.log(`Changed [${this.filepath}]`);
         observer.next(this.filepath);
       });
+      observer.next(this.filepath);
     }).pipe(
       switchMap(s => this.ready()),
-      catchError(err => {
-        console.log("Caught ", err);
-        return of({});
-      })
+      retry(10)
     );
 
     return file$;

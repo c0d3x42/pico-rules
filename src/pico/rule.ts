@@ -58,7 +58,7 @@ export class Rule {
   disposition_else: ActionCollection = [];
 
   public exec(context: Context) {
-    console.log("Rule ->");
+    // console.log("Rule ->");
     if (
       this.entry.find(condition => {
         return condition.exec(context);

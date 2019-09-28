@@ -3,10 +3,9 @@ import "reflect-metadata";
 import { inspect } from "util";
 
 import { EngineManager } from "./pico";
-import { Main } from "./pico/main";
 import { Context } from "./pico/context";
 import { FsProvider } from "./providers/fs-provider";
-import { Observable, interval } from "rxjs";
+import { interval } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 const ruleDoc = {
@@ -32,25 +31,20 @@ const ruleDoc = {
 
 const picoRules = { main: [ruleDoc] };
 
-const em = new EngineManager();
+const fsp = new FsProvider("rules.json");
 
-const m = new Main();
-const o = m
-  .init()
-  .pipe(
-    map(ctx => {
-      console.log("OUT", ctx);
-    })
-  )
-  .subscribe();
+const m = new EngineManager(fsp.emit());
+m.load().subscribe(ctxOut => {
+  console.log("OUTPUT ", ctxOut.tokens.get("counter"));
+});
 
-const i$ = interval(1000);
+let context = new Context();
+context.tokens.set("node", "localhost");
+context.tokens.set("summary", "hello world");
+const i$ = interval(500);
 i$.pipe(
   map(i => {
-    let context = new Context();
     context.tokens.set("counter", "" + i);
-    context.tokens.set("node", "localhost");
-    context.tokens.set("summary", "hello world");
     m.exec(context);
   })
 ).subscribe();

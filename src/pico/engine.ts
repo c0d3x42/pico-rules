@@ -55,8 +55,8 @@ export class PicoEngine {
   public exec2(contexts: Observable<Context>) {
     return contexts.pipe(
       map(context => {
-        console.log("exec2 got ctx", context);
-        console.log("exec3 got mainrules", this.mainRules.length);
+        // console.log("exec2 got ctx", context);
+        // console.log("exec3 got mainrules", this.mainRules.length);
         this.mainRules.forEach(rule => rule.exec(context));
         return context;
       })
