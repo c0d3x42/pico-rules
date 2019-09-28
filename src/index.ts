@@ -35,13 +35,17 @@ const fsp = new FsProvider("rules.json");
 
 const m = new EngineManager(fsp.emit());
 m.load().subscribe(ctxOut => {
-  console.log("OUTPUT ", ctxOut.tokens.get("counter"));
+  // @ts-ignore
+  if (ctxOut.tokens.get("counter") % 1000 === 0) {
+    console.log("OUTPUT ", ctxOut.tokens.get("counter"));
+  }
 });
 
 let context = new Context();
 context.tokens.set("node", "localhost");
 context.tokens.set("summary", "hello world");
-const i$ = interval(500);
+
+const i$ = interval(100);
 i$.pipe(
   map(i => {
     context.tokens.set("counter", "" + i);
