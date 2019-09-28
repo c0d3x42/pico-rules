@@ -1,7 +1,7 @@
 import { promises as fsp } from "fs";
-import { from, Observable } from "rxjs";
+import { from, Observable, of } from "rxjs";
 import { watch } from "chokidar";
-import { switchMap, map } from "rxjs/operators";
+import { switchMap, map, catchError } from "rxjs/operators";
 
 export class Provider {}
 
@@ -34,7 +34,13 @@ export class FsWatchProvider extends FsProvider {
         console.log(`Changed [${this.filepath}]`);
         observer.next(this.filepath);
       });
-    }).pipe(switchMap(s => this.ready()));
+    }).pipe(
+      switchMap(s => this.ready()),
+      catchError(err => {
+        console.log("Caught ", err);
+        return of({});
+      })
+    );
 
     return file$;
   }

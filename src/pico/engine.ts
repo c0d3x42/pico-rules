@@ -8,6 +8,8 @@ import { injectable, inject } from "inversify";
 import { TYPES } from "./types";
 import { IdGenerator } from "./interfaces";
 import { IsArray, ValidateNested, IsDefined, IsOptional } from "class-validator";
+import { Observable } from "rxjs";
+import { map, switchMap } from "rxjs/operators";
 export { Rule };
 
 export class RuleCollection extends Array<Rule> {}
@@ -48,5 +50,16 @@ export class PicoEngine {
     console.log("ID = " + this.idGen.generate());
     console.log("rules exec = ", this.mainRules);
     this.mainRules.forEach(rule => rule.exec(context));
+  }
+
+  public exec2(contexts: Observable<Context>) {
+    return contexts.pipe(
+      map(context => {
+        console.log("exec2 got ctx", context);
+        console.log("exec3 got mainrules", this.mainRules.length);
+        this.mainRules.forEach(rule => rule.exec(context));
+        return context;
+      })
+    );
   }
 }

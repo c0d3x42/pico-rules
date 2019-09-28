@@ -14,9 +14,9 @@ export class Rule {
       subTypes: [
         { value: EqualityCondition, name: "eq" },
         { value: ConditionList, name: "list" },
-        { value: LikeCondition, name: "like" }
-      ]
-    }
+        { value: LikeCondition, name: "like" },
+      ],
+    },
   })
   @Expose({ name: "if" })
   @IsArray()
@@ -36,9 +36,9 @@ export class Rule {
       subTypes: [
         { value: ActionRule, name: "rule" },
         { name: "setvar", value: ActionSetVar },
-        { name: "template", value: ActionSetTemplated }
-      ]
-    }
+        { name: "template", value: ActionSetTemplated },
+      ],
+    },
   })
   @ValidateNested()
   disposition_then: ActionCollection = [];
@@ -50,14 +50,15 @@ export class Rule {
       subTypes: [
         { value: ActionRule, name: "rule" },
         { name: "setvar", value: ActionSetVar },
-        { name: "template", value: ActionSetTemplated }
-      ]
-    }
+        { name: "template", value: ActionSetTemplated },
+      ],
+    },
   })
   @ValidateNested()
   disposition_else: ActionCollection = [];
 
   public exec(context: Context) {
+    console.log("Rule ->");
     if (
       this.entry.find(condition => {
         return condition.exec(context);

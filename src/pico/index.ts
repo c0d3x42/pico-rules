@@ -5,12 +5,24 @@ import { validate } from "class-validator";
 import { PicoEngine } from "./engine";
 import { readFileSync } from "fs";
 import { map, switchMap } from "rxjs/operators";
-import { from } from "rxjs";
+import { from, Observer, Subject, Observable } from "rxjs";
 
 import { FsProvider, FsWatchProvider } from "../providers/fs-provider";
+import { ObserveOnOperator } from "rxjs/internal/operators/observeOn";
+import { Context } from "./context";
 
 export class EngineManager {
   ruleDoc: Object = {};
+
+  obs: Subject<Context>;
+
+  constructor() {
+    this.obs = new Subject();
+  }
+
+  public exec(context: Context) {
+    this.obs.next(context);
+  }
 
   public load(rulesDocument: Object): Promise<PicoEngine> {
     const engine = container.get<PicoEngine>(TYPES.PicoEngine);
@@ -25,7 +37,7 @@ export class EngineManager {
     });
   }
 
-  public loadFromFile(filenamePath: string) {
+  public loadFromFile(filenamePath: string): Observable<PicoEngine> {
     const fsw = new FsWatchProvider(filenamePath);
     return fsw.emit().pipe(
       switchMap(jsonDoc => {
