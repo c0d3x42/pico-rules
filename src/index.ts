@@ -4,8 +4,8 @@ import { inspect } from "util";
 
 import { EngineManager } from "./pico";
 import { Context } from "./pico/context";
-import { FsProvider } from "./providers/fs-provider";
-import { interval } from "rxjs";
+import { FsProvider } from "./providers";
+import { interval, timer } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 
 const ruleDoc = {
@@ -31,27 +31,39 @@ const ruleDoc = {
 
 const picoRules = { main: [ruleDoc] };
 
-const fsp = new FsProvider("rules.json");
+const fsp = new FsProvider({ filepath: "rules.json" });
 
 const m = new EngineManager(fsp.emit());
 m.load().subscribe(ctxOut => {
   // @ts-ignore
-  if (ctxOut.tokens.get("counter") % 1000 === 0) {
+  if (ctxOut.tokens.get("counter") % 1000000 === 0) {
     console.log("OUTPUT ", ctxOut.tokens.get("counter"));
+    console.log("OUTPUT ", ctxOut.tokens);
+    console.log("marker " + new Date().toTimeString());
   }
 });
 
 let context = new Context();
 context.tokens.set("node", "localhost");
 context.tokens.set("summary", "hello world");
-
-const i$ = interval(100);
+/*
+const i$ = interval(1);
 i$.pipe(
   map(i => {
     context.tokens.set("counter", "" + i);
     m.exec(context);
   })
 ).subscribe();
+*/
+const source = interval(20);
+source.subscribe(t => {
+  console.log("START " + new Date().toTimeString());
+  for (let i = 1; i < 10000000; i++) {
+    context.tokens.set("counter", "" + i);
+    m.exec(context);
+  }
+  console.log("end " + new Date().getTime());
+});
 
 //em.load(picoRules).then(engine => {
 /*
