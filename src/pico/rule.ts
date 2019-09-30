@@ -1,7 +1,7 @@
 import { Type, Expose } from "class-transformer";
-import { ConditionList, Condition, EqualityCondition, ConditionCollection, LikeCondition } from "./condition";
-import { ValidateNested, IsDefined, IsNumber, IsArray, IsString } from "class-validator";
-import { Action, ActionRule, ActionSetVar, ActionCollection, ActionSetTemplated } from "./action";
+import { ConditionList, Condition, EqualityCondition, ConditionCollection, LikeCondition } from "./conditions";
+import { ValidateNested, IsDefined, IsArray, IsString } from "class-validator";
+import { Action, ActionRule, ActionSetVar, ActionCollection, ActionSetTemplated } from "./actions";
 import { Context } from "./context";
 
 import { debug as debugLogger } from "debug";
