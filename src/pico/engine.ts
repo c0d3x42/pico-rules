@@ -46,13 +46,7 @@ export class PicoEngine {
     this.mainRules = new RuleCollection();
   }
 
-  public exec(context: Context): void {
-    console.log("ID = " + this.idGen.generate());
-    console.log("rules exec = ", this.mainRules);
-    this.mainRules.forEach(rule => rule.exec(context));
-  }
-
-  public exec2(contexts: Observable<Context>) {
+  public exec(contexts: Observable<Context>) {
     return contexts.pipe(
       map(context => {
         // console.log("exec2 got ctx", context);

@@ -1,6 +1,5 @@
 import { Context } from "./context";
 import { Observable } from "rxjs";
-import { PicoEngine } from "./engine";
 import { PicoEngineProvider } from "./types";
 
 export interface IdGenerator {
@@ -8,7 +7,7 @@ export interface IdGenerator {
 }
 
 export interface Engine {
-  exec(context: Context): void;
+  exec(context: Observable<Context>): Observable<Context>;
 }
 
 export interface EngineLoader {

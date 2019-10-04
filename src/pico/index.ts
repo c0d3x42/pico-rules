@@ -38,7 +38,7 @@ export class EngineManager {
 
         return this.engineFactory(jsonDoc);
       }),
-      switchMap(eng => eng.exec2(this.ctx$))
+      switchMap(eng => eng.exec(this.ctx$))
     );
   }
 
