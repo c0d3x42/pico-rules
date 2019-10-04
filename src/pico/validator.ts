@@ -4,14 +4,15 @@ import { inspect } from "util";
 const SCHEMAS = [
   "uuid.json",
   "rule.json",
-  "opcondition.json",
+  // "opcondition.json",
   "action.json",
   //  "action.rule.json",
   //  "action.setvar.json",
   //  "action.template.json",
-  "condition.eq.json",
-  "condition.like.json",
-  "condition.list.json",
+  "condition.json",
+  //  "condition.eq.json",
+  // "condition.like.json",
+  // "condition.list.json",
 ];
 const EngineSchema = "engine.json";
 
@@ -37,7 +38,7 @@ export class PicoValidator {
   }
 
   public validateCondition(conditionJson: any) {
-    const r = this.ajv.validate("pico/schemas/opcondition.json", conditionJson);
+    const r = this.ajv.validate("pico/schemas/condition.json", conditionJson);
     console.log("C = ", r);
     console.log("  = ", inspect(this.ajv.errors, false, 12));
   }

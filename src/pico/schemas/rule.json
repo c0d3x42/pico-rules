@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "properties": {
     "label": { "type": "string" },
-    "if": { "type": "array", "items": { "$ref": "opcondition.json" } },
+    "if": { "type": "array", "items": { "$ref": "condition.json" } },
     "then": { "type": "array", "items": { "$ref": "action.json" } },
     "else": { "type": "array", "items": { "$ref": "action.json" } }
   },
