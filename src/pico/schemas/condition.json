@@ -1,0 +1,44 @@
+{
+  "$id": "pico/schemas/condition.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+
+  "definitions": {
+    "eq": {
+      "type": "object",
+      "additionalProperties": { "$ref": "uuid.json" },
+      "properties": {
+        "op": { "type": "string", "const": "eq" },
+        "token": { "type": "string" },
+        "value": { "type": "string" }
+      },
+      "required": ["token", "value"]
+    },
+    "like": {
+      "type": "object",
+      "additionalProperties": { "$ref": "uuid.json" },
+      "properties": {
+        "op": { "type": "string", "const": "like" },
+        "token": { "type": "string" },
+        "value": { "type": "string" }
+      },
+      "required": ["token", "value"]
+    },
+    "list": {
+      "type": "object",
+      "additionalProperties": { "$ref": "uuid.json" },
+      "properties": {
+        "op": { "type": "string", "const": "list" },
+        "traversal": { "type": "string", "enum": ["and", "or"], "default": "or" },
+        "conditions": { "type": "array", "items": { "$ref": "condition.json" } }
+      },
+      "required": ["conditions"]
+    }
+  },
+
+  "oneOf": [{ "$ref": "#/definitions/eq" }, { "$ref": "#/definitions/like" }, { "$ref": "#/definitions/list" }],
+  "properties": {
+    "op": { "type": "string", "enum": ["eq", "like", "list"] },
+    "uuid": { "type": "string" }
+  },
+  "required": ["op"]
+}
