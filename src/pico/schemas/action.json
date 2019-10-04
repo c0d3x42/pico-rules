@@ -2,10 +2,43 @@
   "$id": "pico/schemas/action.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
 
+  "definitions": {
+    "rule": {
+      "type": "object",
+      "properties": {
+        "act": { "type": "string", "const": "rule" },
+        "rule": { "$ref": "rule.json" }
+      },
+      "additionalProperties": { "$ref": "uuid.json" },
+      "required": ["rule"]
+    },
+    "setvar": {
+      "type": "object",
+      "properties": {
+        "act": { "type": "string", "const": "setvar" },
+        "varName": { "type": "string" },
+        "varValue": { "type": "string" }
+      },
+      "additionalProperties": { "$ref": "uuid.json" },
+      "required": ["varName", "varValue"]
+    },
+    "template": {
+      "type": "object",
+      "properties": {
+        "act": { "type": "string", "const": "template" },
+        "varName": { "type": "string" },
+        "template": { "type": "string" }
+      },
+      "additionalProperties": { "$ref": "uuid.json" },
+      "required": ["varName", "template"]
+    }
+  },
+
   "type": "object",
   "properties": {
-    "act": { "type": "string", "enum": ["rule", "setvar", "template"] }
+    "act": { "type": "string", "enum": ["rule", "setvar", "template"] },
+    "uuid": { "type": "string" }
   },
-  "anyOf": [{ "$ref": "action.setvar.json" }, { "$ref": "action.template.json" }, { "$ref": "action.rule.json" }],
-  "required": ["act"]
+  "required": ["act"],
+  "oneOf": [{ "$ref": "#/definitions/rule" }, { "$ref": "#/definitions/template" }, { "$ref": "#/definitions/setvar" }]
 }
