@@ -35,4 +35,10 @@ export class PicoValidator {
     console.log("R = ", r);
     console.log("  = ", inspect(this.validator.errors, false, 12));
   }
+
+  public validateCondition(conditionJson: any) {
+    const r = this.ajv.validate("pico/schemas/opcondition.json", conditionJson);
+    console.log("C = ", r);
+    console.log("  = ", inspect(this.ajv.errors, false, 12));
+  }
 }
