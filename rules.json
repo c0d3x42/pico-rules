@@ -1,10 +1,10 @@
 {
   "main": [
     {
-      "label": "some rule",
+      "label": "some rule-3",
       "if": [
         { "op": "like", "token": "summary", "value": "(?<first>[a-z]+) (?<second>[a-z]+)" },
-        { "op": "eq", "token": "node", "value": "localhost", "lop": 1 },
+        { "op": "eq", "token": "node", "value": "localhost", "uuid": "l" },
         {
           "op": "list",
           "conditions": [
@@ -17,14 +17,15 @@
         }
       ],
       "then": [
-        { "act": "setvar", "varName": "pop", "varValue": "john" },
+        { "act": "setvar", "varName": "pop", "varValue": "john", "modifier": "append", "uuid": "88" },
         { "act": "template", "varName": "popppy", "template": "from node {{node}}" },
         {
           "act": "rule",
+          "uuid": "eee",
           "rule": {
             "label": "subrule",
             "if": [{ "op": "eq", "token": "customer", "value": "GM" }],
-            "then": [],
+            "then": [{ "act": "setvar", "varName": "custy", "varValue": "cars"}],
             "else": []
           }
         }

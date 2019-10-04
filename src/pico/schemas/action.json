@@ -17,7 +17,8 @@
       "properties": {
         "act": { "type": "string", "const": "setvar" },
         "varName": { "type": "string" },
-        "varValue": { "type": "string" }
+        "varValue": { "type": "string" },
+        "modifier": { "type": "string", "enum": ["append", "replace", "prepend"] }
       },
       "additionalProperties": { "$ref": "uuid.json" },
       "required": ["varName", "varValue"]

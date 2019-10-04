@@ -5,7 +5,7 @@
   "type": "object",
   "additionalProperties": false,
   "properties": {
-    "label": { "type": "string" },
+    "label": { "type": "string", "pattern": "^[0-9a-zA-Z -_]+$" },
     "if": { "type": "array", "items": { "$ref": "condition.json" } },
     "then": { "type": "array", "items": { "$ref": "action.json" } },
     "else": { "type": "array", "items": { "$ref": "action.json" } }

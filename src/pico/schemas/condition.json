@@ -8,7 +8,7 @@
       "additionalProperties": { "$ref": "uuid.json" },
       "properties": {
         "op": { "type": "string", "const": "eq" },
-        "token": { "type": "string" },
+        "token": { "type": "string", "pattern": "^[0-9a-zA-Z]+$" },
         "value": { "type": "string" }
       },
       "required": ["token", "value"]
@@ -18,7 +18,7 @@
       "additionalProperties": { "$ref": "uuid.json" },
       "properties": {
         "op": { "type": "string", "const": "like" },
-        "token": { "type": "string" },
+        "token": { "type": "string", "pattern": "^[0-9a-zA-Z]+$" },
         "value": { "type": "string" }
       },
       "required": ["token", "value"]

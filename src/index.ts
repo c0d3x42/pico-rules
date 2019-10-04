@@ -34,14 +34,19 @@ const picoRules = { main: [ruleDoc] };
 const fsp = new FsProvider({ filepath: "rules.json" });
 
 const m = new EngineManager(fsp.emit());
-m.load().subscribe(ctxOut => {
-  // @ts-ignore
-  if (ctxOut.tokens.get("counter") % 1000000 === 0) {
-    console.log("OUTPUT ", ctxOut.tokens.get("counter"));
-    console.log("OUTPUT ", ctxOut.tokens);
-    console.log("marker " + new Date().toTimeString());
+m.load().subscribe(
+  ctxOut => {
+    // @ts-ignore
+    if (ctxOut.tokens.get("counter") % 1000000 === 0) {
+      console.log("OUTPUT ", ctxOut.tokens.get("counter"));
+      console.log("OUTPUT ", ctxOut.tokens);
+      console.log("marker " + new Date().toTimeString());
+    }
+  },
+  err => {
+    console.log("ERRRR", inspect(err, false, 15));
   }
-});
+);
 
 let context = new Context();
 context.tokens.set("node", "localhost");
@@ -58,7 +63,11 @@ i$.pipe(
 const source = interval(20);
 source.subscribe(t => {
   console.log("START " + new Date().toTimeString());
+
   for (let i = 1; i < 10000000; i++) {
+    context.tokens.clear();
+    context.tokens.set("node", "localhost");
+    context.tokens.set("summary", "hello world");
     context.tokens.set("counter", "" + i);
     m.exec(context);
   }
