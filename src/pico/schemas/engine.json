@@ -1,0 +1,14 @@
+{
+  "$id": "pico/schemas/engine.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "main": { "type": "array", "items": { "$ref": "rule.json" } },
+    "global": {
+      "type": "array",
+      "items": {
+        "$ref": "rule.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$id": "pico/schemas/condition.like.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+
+  "definitions": {
+    "like": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "op": { "type": "string", "enum": ["like"] },
+        "token": { "type": "string" },
+        "value": { "type": "string" }
+      },
+      "required": ["op", "token", "value"]
+    }
+  },
+  "allOf": [{ "$ref": "#/definitions/like" }, { "$ref": "uuid.json" }]
+}
