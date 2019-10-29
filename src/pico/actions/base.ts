@@ -1,11 +1,20 @@
 import { Context } from "../context";
 
 import { debug as debugLogger } from "debug";
+import { injectable } from "inversify";
+import { InternalIdentifier } from "../internal-identifier";
+
 const debug = debugLogger("Actions");
 
-export class ActionCollection extends Array<Action> {}
+export class ActionCollection extends Array<Action> {
+  constructor() {
+    super();
+    console.log("ctor action Collection");
+  }
+}
 
-export abstract class Action {
+@injectable()
+export abstract class Action extends InternalIdentifier {
   abstract act: string;
 
   public abstract _exec(context: Context): boolean;
@@ -18,4 +27,8 @@ export abstract class Action {
     return false;
   }
   init(): void {}
+
+  constructor() {
+    super();
+  }
 }

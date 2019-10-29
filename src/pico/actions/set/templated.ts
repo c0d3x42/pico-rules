@@ -42,6 +42,10 @@ export class ActionSetTemplated extends Action {
     }
     return true;
   }
+
+  constructor() {
+    super();
+  }
 }
 
 export class ActionList extends Action {

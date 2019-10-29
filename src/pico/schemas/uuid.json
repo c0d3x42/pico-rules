@@ -2,6 +2,6 @@
   "$id": "pico/schemas/uuid.json",
   "$schema": "http://json-schema.org/draft-07/schema#",
   "properties": {
-    "uuid": { "type": "string" }
+    "identifier": { "type": "string" }
   }
 }

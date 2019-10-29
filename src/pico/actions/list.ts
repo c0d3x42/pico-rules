@@ -27,4 +27,8 @@ export class ActionList extends Action {
     debug(`executing ActionList `);
     return true;
   }
+
+  constructor() {
+    super();
+  }
 }

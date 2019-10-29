@@ -48,7 +48,7 @@ export class ConditionList extends Condition {
     if (this.traversal === "or") {
       return Boolean(
         this.conditions.find(condition => {
-          return condition.exec(context) && context.logVisit(condition.id);
+          return condition.exec(context) && context.logVisit(condition.identifier);
         })
       );
     } else if (this.traversal === "and") {

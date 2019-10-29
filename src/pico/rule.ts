@@ -1,13 +1,16 @@
-import { Type, Expose } from "class-transformer";
+import { Type, Expose, Transform, Exclude } from "class-transformer";
 import { ConditionList, Condition, EqualityCondition, ConditionCollection, LikeCondition } from "./conditions";
 import { ValidateNested, IsDefined, IsArray, IsString } from "class-validator";
 import { Action, ActionRule, ActionSetVar, ActionCollection, ActionSetTemplated } from "./actions";
 import { Context } from "./context";
 
 import { debug as debugLogger } from "debug";
+import { injectable } from "inversify";
+import { InternalIdentifier } from "./internal-identifier";
 const debug = debugLogger("Rule");
 
-export class Rule {
+@injectable()
+export class Rule /*extends InternalIdentifier */ {
   @Type(() => Condition, {
     discriminator: {
       property: "op",
@@ -34,13 +37,14 @@ export class Rule {
     discriminator: {
       property: "act",
       subTypes: [
-        { value: ActionRule, name: "rule" },
+        { name: "rule", value: ActionRule },
         { name: "setvar", value: ActionSetVar },
         { name: "template", value: ActionSetTemplated },
       ],
     },
   })
   @ValidateNested()
+  @Transform(value => value || new ActionCollection())
   disposition_then: ActionCollection = [];
 
   @Expose({ name: "else" })
@@ -55,8 +59,12 @@ export class Rule {
     },
   })
   @ValidateNested()
+  @Transform(value => value || new ActionCollection())
   disposition_else: ActionCollection = [];
 
+  public constructor() {
+    //super();
+  }
   public exec(context: Context) {
     // console.log("Rule ->");
     if (

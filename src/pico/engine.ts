@@ -12,6 +12,8 @@ import { Observable } from "rxjs";
 import { map, switchMap } from "rxjs/operators";
 export { Rule };
 
+import { container } from "./inversify.config";
+
 export class RuleCollection extends Array<Rule> {}
 
 @injectable()
@@ -29,7 +31,10 @@ export class PicoEngine {
   @IsArray()
   @ValidateNested()
   @Type(() => Rule)
-  @Transform(value => value || new RuleCollection())
+  //@Transform(value => value || new RuleCollection())
+  @Transform((value, obj, type) => {
+    return value || new RuleCollection();
+  })
   mainRules: RuleCollection = [];
 
   /*

@@ -1,6 +1,9 @@
 import ajv, { Ajv, ValidateFunction } from "ajv";
 import { inspect } from "util";
 
+import { debug as debugLogger } from "debug";
+const debug = debugLogger("schema:validation");
+
 const SCHEMAS = [
   "uuid.json",
   "rule.json",
@@ -24,7 +27,7 @@ export class PicoValidator {
     this.ajv = new ajv();
 
     const m = SCHEMAS.map(s => {
-      console.log("Adding... " + s);
+      debug("Adding... " + s);
       return require(this.schemaDir + "/" + s);
     });
 
@@ -41,5 +44,9 @@ export class PicoValidator {
     const r = this.ajv.validate("pico/schemas/condition.json", conditionJson);
     console.log("C = ", r);
     console.log("  = ", inspect(this.ajv.errors, false, 12));
+  }
+
+  public validateAction(actionJson: any) {
+    const r = this.ajv.validate("pico/schemas/action.json", actionJson);
   }
 }
