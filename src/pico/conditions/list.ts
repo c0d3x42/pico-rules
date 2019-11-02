@@ -4,13 +4,13 @@ import "reflect-metadata";
 import { Context } from "../context";
 import { debug as debugLogger } from "debug";
 
-import { Condition, ConditionCollection } from "./base";
+import { Condition, ConditionCollection, Executable } from "./base";
 import { LikeCondition } from "./like";
 import { EqualityCondition } from "./equality";
 
 const debug = debugLogger("Conditions");
 
-export class ConditionList extends Condition {
+export class ConditionList extends Condition implements Executable {
   @Transform(value => value || "list", { toClassOnly: true })
   @IsIn(["list", "eq", "like"])
   @Expose()
@@ -44,7 +44,7 @@ export class ConditionList extends Condition {
   @Transform(value => value || "or", { toClassOnly: true })
   traversal!: string;
 
-  public _exec(context: Context): boolean {
+  public exec(context: Context): boolean {
     if (this.traversal === "or") {
       return Boolean(
         this.conditions.find(condition => {

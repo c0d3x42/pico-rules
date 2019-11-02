@@ -16,13 +16,15 @@ export abstract class Condition extends InternalIdentifier {
   @IsDefined()
   abstract op: string;
 
-  abstract _exec(context: Context): boolean;
-  // must implement
   public exec(context: Context): boolean {
-    return this._exec(context) && context.logVisit(this.identifier);
+    return true && context.logVisit(this.identifier);
   }
 
   constructor() {
     super();
   }
+}
+
+export interface Executable {
+  exec(context: Context): boolean;
 }

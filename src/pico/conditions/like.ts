@@ -4,11 +4,11 @@ import "reflect-metadata";
 import { Context } from "../context";
 import { debug as debugLogger } from "debug";
 
-import { Condition } from "./base";
+import { Condition, Executable } from "./base";
 
 const debug = debugLogger("Conditions");
 
-export class LikeCondition extends Condition {
+export class LikeCondition extends Condition implements Executable {
   op: string = "like";
 
   @Expose()
@@ -24,7 +24,7 @@ export class LikeCondition extends Condition {
 
   valueRE?: RegExp;
 
-  _exec(context: Context): boolean {
+  exec(context: Context): boolean {
     if (!this.valueRE) {
       this.valueRE = new RegExp(this.value);
     }
