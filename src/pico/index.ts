@@ -3,8 +3,8 @@ import { TYPES, PicoEngineProvider } from "./types";
 import { plainToClassFromExist } from "class-transformer";
 import { validate } from "class-validator";
 import { PicoEngine } from "./engine";
-import { switchMap } from "rxjs/operators";
-import { Subject, Observable } from "rxjs";
+import { switchMap, tap } from "rxjs/operators";
+import { Subject, Observable, AsyncSubject } from "rxjs";
 
 import { ObserveOnOperator } from "rxjs/internal/operators/observeOn";
 import { Context } from "./context";
@@ -13,22 +13,33 @@ import { BasicJsonRules } from "./interfaces";
 export class EngineManager {
   ruleDoc: Object = {};
   ctx$: Subject<Context>;
+  ready$: AsyncSubject<string>;
 
   constructor(private readonly jsonProvider: Observable<BasicJsonRules>) {
     this.ctx$ = new Subject();
+    this.ready$ = new AsyncSubject();
   }
 
   private engineFactory(rulesDocument: Object): Promise<PicoEngine> {
     const engine = container.get<PicoEngine>(TYPES.PicoEngine);
-    const rule = plainToClassFromExist(engine, rulesDocument, { excludeExtraneousValues: true });
+    const picoEngine = plainToClassFromExist(engine, rulesDocument, { excludeExtraneousValues: true });
 
-    return validate(rule).then(validationErrors => {
+    return validate(picoEngine).then(validationErrors => {
       if (validationErrors.length > 0) {
         throw validationErrors;
       }
+      this.ready$.next("ready");
       this.ruleDoc = rulesDocument;
-      return rule;
+      return picoEngine;
     });
+  }
+
+  public init(): Observable<PicoEngine> {
+    return this.jsonProvider.pipe(switchMap(doc => this.engineFactory(doc)));
+  }
+
+  public run(contexts: Observable<Context>) {
+    return this.init().pipe(switchMap(engine => engine.exec(contexts)));
   }
 
   public load(): Observable<Context> {
@@ -37,6 +48,10 @@ export class EngineManager {
         console.log("FSW: ", jsonDoc);
 
         return this.engineFactory(jsonDoc);
+      }),
+      tap(blah => {
+        // signal readiness
+        this.ready$.complete();
       }),
       switchMap(eng => eng.exec(this.ctx$))
     );

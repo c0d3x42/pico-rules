@@ -6,6 +6,7 @@ import { EngineManager } from "./pico";
 import { Context } from "./pico/context";
 import { FsProvider } from "./providers";
 import { interval, from } from "rxjs";
+import { switchMap, take, map } from "rxjs/operators";
 
 const fsp = new FsProvider({ filepath: "rules.json" });
 
@@ -38,11 +39,29 @@ i$.pipe(
 ).subscribe();
 */
 //const source = interval(200);
-const source = from([1, 2, 3]);
-source.subscribe(t => {
+const source = from([1, 2, 3]); // three iterations for testing
+
+const ctx$ = source.pipe(
+  map(num => {
+    const ctx = new Context();
+    ctx.tokens.set("node", "localhost");
+    ctx.tokens.set("counter", "" + num);
+    return ctx;
+  })
+);
+
+//m.run(ctx$).subscribe(ctxout => {
+//  console.log(ctxout.tokens.get("counter"));
+//});
+
+const ready = m.ready$.pipe(take(1)); // synchorise when ready
+const clearToSend = ready.pipe(switchMap(_ => source)); // sequence readiness -> from
+clearToSend.subscribe(t => {
+  // rules were loaded
+  console.log("Some rules got loaded");
   console.log("START " + new Date().toTimeString());
 
-  for (let i = 1; i < 2; i++) {
+  for (let i = 1; i < 7; i++) {
     context.tokens.clear();
     context.tokens.set("node", "localhost");
     context.tokens.set("summary", "hello world");

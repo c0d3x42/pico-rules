@@ -51,14 +51,12 @@ export class PicoEngine {
     this.mainRules = new RuleCollection();
   }
 
+  public singleExec(context: Context) {
+    this.mainRules.forEach(rule => rule.exec(context));
+    return context;
+  }
+
   public exec(contexts: Observable<Context>) {
-    return contexts.pipe(
-      map(context => {
-        // console.log("exec2 got ctx", context);
-        // console.log("exec3 got mainrules", this.mainRules.length);
-        this.mainRules.forEach(rule => rule.exec(context));
-        return context;
-      })
-    );
+    return contexts.pipe(map(ctx => this.singleExec(ctx)));
   }
 }
