@@ -1,4 +1,4 @@
-import { Expose } from "class-transformer";
+import { Expose, Transform } from "class-transformer";
 import { IsDefined, IsString, IsNotEmpty } from "class-validator";
 import "reflect-metadata";
 import { Context } from "../context";
@@ -22,12 +22,17 @@ export class LikeCondition extends Condition implements Executable {
   @IsString()
   value: string = "";
 
+  @Expose({ toClassOnly: true })
+  @Transform(
+    (value, obj, typ) => {
+      const re = new RegExp(obj.value);
+      return re;
+    },
+    { toClassOnly: true }
+  )
   valueRE?: RegExp;
 
   exec(context: Context): boolean {
-    if (!this.valueRE) {
-      this.valueRE = new RegExp(this.value);
-    }
     debug(`Like with ${this.value}`);
     if (this.token === null) {
       return false;
@@ -35,7 +40,7 @@ export class LikeCondition extends Condition implements Executable {
     const comparisonValue = context.tokens.get(this.token);
     debug(`Like comparing ${comparisonValue}`);
 
-    if (comparisonValue) {
+    if (comparisonValue && this.valueRE) {
       const matches = this.valueRE.exec(comparisonValue);
 
       if (matches && matches.groups) {

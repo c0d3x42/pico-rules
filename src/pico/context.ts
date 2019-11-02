@@ -8,4 +8,10 @@ export class Context {
     this.visits.add(id);
     return true;
   }
+
+  public dump(): void {
+    this.tokens.forEach((value, key) => {
+      console.log(`TOKEN [${key}] = ${value}`);
+    });
+  }
 }

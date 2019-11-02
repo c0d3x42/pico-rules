@@ -5,7 +5,7 @@ import { inspect } from "util";
 import { EngineManager } from "./pico";
 import { Context } from "./pico/context";
 import { FsProvider } from "./providers";
-import { interval } from "rxjs";
+import { interval, from } from "rxjs";
 
 const fsp = new FsProvider({ filepath: "rules.json" });
 
@@ -18,6 +18,7 @@ m.load().subscribe(
       console.log("OUTPUT ", ctxOut.tokens);
       console.log("marker " + new Date().toTimeString());
     }
+    ctxOut.dump();
   },
   err => {
     console.log("ERRRR", inspect(err, false, 15));
@@ -36,7 +37,8 @@ i$.pipe(
   })
 ).subscribe();
 */
-const source = interval(200);
+//const source = interval(200);
+const source = from([1, 2, 3]);
 source.subscribe(t => {
   console.log("START " + new Date().toTimeString());
 
@@ -46,6 +48,7 @@ source.subscribe(t => {
     context.tokens.set("summary", "hello world");
     context.tokens.set("counter", "" + i);
     m.exec(context);
+    context.dump();
   }
   console.log("end " + new Date().getTime());
 });
