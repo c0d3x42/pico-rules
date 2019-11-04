@@ -1,12 +1,12 @@
 import { container } from "./inversify.config";
 import { PicoEngine } from "./engine";
 import { TYPES } from "./types";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { BasicJsonRules } from "./interfaces";
 
 import { plainToClassFromExist } from "class-transformer";
 import { validate } from "class-validator";
-import { switchMap, tap } from "rxjs/operators";
+import { switchMap, tap, delay, concatMap, first, take } from "rxjs/operators";
 import { Context } from "./context";
 
 export class Manager {
@@ -14,6 +14,9 @@ export class Manager {
 
   constructor(private readonly jsonProvider: Observable<BasicJsonRules>) {
     this.engine = jsonProvider.pipe(
+      tap(_ => {
+        console.log("tap rules");
+      }),
       switchMap(ruleDoc => {
         return this.engineFactory(ruleDoc);
       })
@@ -35,14 +38,29 @@ export class Manager {
     });
   }
 
+  public start(ctx$: Observable<Context>) {
+    const out = new Subject<Context>();
+
+    const sub = this.engine.pipe(take(1)).subscribe(f => {
+      console.log("FIRST");
+    });
+
+    return this.engine.pipe(
+      concatMap(pico => {
+        console.log("switchmap");
+        return pico.exec(ctx$);
+      })
+    );
+  }
+
   public run(ctx: Observable<Context>) {
     return this.engine
       .pipe(
-        tap(_ => {
-          console.log("tap1");
-        }),
         switchMap(engine => {
           return engine.exec(ctx);
+        }),
+        tap(_ => {
+          console.log("switched engines");
         })
       )
       .subscribe(obs => {

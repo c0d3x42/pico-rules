@@ -21,4 +21,7 @@ const ctxs$ = source.pipe(
   })
 );
 
-manager.run(ctxs$);
+//manager.run(ctxs$);
+manager.start(ctxs$).subscribe(outCtx => {
+  console.log("OUT " + outCtx.tokens.get("counter"));
+});
