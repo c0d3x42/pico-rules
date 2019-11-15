@@ -22,17 +22,19 @@ export class FsProvider extends Provider {
     this.options = { ...FsProviderOptionsDefaults, ...xoptions };
   }
 
-  private ready() {
+  private ready(): Promise<BasicJsonRules> {
     return fsp.readFile(this.options.filepath, "utf-8").then(fileBuffer => {
       const obj: BasicJsonRules = JSON.parse(fileBuffer);
       return obj;
     });
   }
 
-  public load() {
+  // load the rules file from disk
+  public load(): Promise<BasicJsonRules> {
     return this.ready();
   }
 
+  // load the rules file from disk and emit a new one each time it changes
   public emit(): Observable<BasicJsonRules> {
     const watchedFile = watch(this.options.filepath);
 
