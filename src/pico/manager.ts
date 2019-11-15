@@ -6,11 +6,12 @@ import { BasicJsonRules } from "./interfaces";
 
 import { plainToClassFromExist } from "class-transformer";
 import { validate } from "class-validator";
-import { switchMap, tap, delay, concatMap, first, take } from "rxjs/operators";
+import { switchMap, tap, delay, concatMap, first, take, merge } from "rxjs/operators";
 import { Context } from "./context";
 
 export class Manager {
   private engine: Observable<PicoEngine>;
+  private injectContext: Subject<Context> = new Subject<Context>();
 
   constructor(private readonly jsonProvider: Observable<BasicJsonRules>) {
     this.engine = jsonProvider.pipe(
@@ -41,6 +42,8 @@ export class Manager {
   public start(ctx$: Observable<Context>) {
     const out = new Subject<Context>();
 
+    const mergedContexts = ctx$.pipe(merge(this.injectContext));
+
     const sub = this.engine.pipe(take(1)).subscribe(f => {
       console.log("FIRST");
     });
@@ -48,9 +51,13 @@ export class Manager {
     return this.engine.pipe(
       concatMap(pico => {
         console.log("switchmap");
-        return pico.exec(ctx$);
+        return pico.exec(mergedContexts);
       })
     );
+  }
+
+  public inject(ctx: Context) {
+    this.injectContext.next(ctx);
   }
 
   public run(ctx: Observable<Context>) {

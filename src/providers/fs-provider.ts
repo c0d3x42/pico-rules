@@ -12,7 +12,7 @@ export interface FsProviderOptions {
 
 const FsProviderOptionsDefaults: FsProviderOptions = {
   once: false,
-  filepath: "rules.json",
+  filepath: "rules.json"
 };
 
 export class FsProvider extends Provider {
@@ -27,6 +27,10 @@ export class FsProvider extends Provider {
       const obj: BasicJsonRules = JSON.parse(fileBuffer);
       return obj;
     });
+  }
+
+  public load() {
+    return this.ready();
   }
 
   public emit(): Observable<BasicJsonRules> {

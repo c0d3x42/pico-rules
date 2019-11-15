@@ -41,7 +41,7 @@ export class LikeCondition extends Condition implements Executable {
     debug(`Like comparing ${comparisonValue}`);
 
     if (comparisonValue && this.valueRE) {
-      const matches = this.valueRE.exec(comparisonValue);
+      const matches = this.valueRE.exec("" + comparisonValue);
 
       if (matches && matches.groups) {
         debug(`Like found some matches `);
