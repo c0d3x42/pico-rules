@@ -1,10 +1,7 @@
 import "reflect-metadata";
 
 import { FsProvider } from "./providers";
-import { SyncManager } from "./pico/sync.manager";
-import { interval } from "rxjs";
-import { switchMap, map } from "rxjs/operators";
-import { Context } from "./pico/context";
+import { Context, SyncManager } from "./pico";
 
 const fsp = new FsProvider({ filepath: "rules.json" });
 const manager = new SyncManager();

@@ -9,20 +9,16 @@ import { validate } from "class-validator";
 import { switchMap, tap, delay, concatMap, first, take, merge } from "rxjs/operators";
 import { Context } from "./context";
 
-export class Manager {
+export class RxManager {
   private engine: Observable<PicoEngine>;
   private injectContext: Subject<Context> = new Subject<Context>();
 
   constructor(private readonly jsonProvider: Observable<BasicJsonRules>) {
     this.engine = jsonProvider.pipe(
-      tap(_ => {
-        console.log("tap rules");
-      }),
       switchMap(ruleDoc => {
         return this.engineFactory(ruleDoc);
       })
     );
-    console.log("ctor");
   }
 
   private engineFactory(rulesDocument: Object): Promise<PicoEngine> {
@@ -39,7 +35,7 @@ export class Manager {
     });
   }
 
-  public start(ctx$: Observable<Context>) {
+  public start(ctx$: Observable<Context>): Observable<Context> {
     const out = new Subject<Context>();
 
     const mergedContexts = ctx$.pipe(merge(this.injectContext));
@@ -58,20 +54,5 @@ export class Manager {
 
   public inject(ctx: Context) {
     this.injectContext.next(ctx);
-  }
-
-  public run(ctx: Observable<Context>) {
-    return this.engine
-      .pipe(
-        switchMap(engine => {
-          return engine.exec(ctx);
-        }),
-        tap(_ => {
-          console.log("switched engines");
-        })
-      )
-      .subscribe(obs => {
-        console.log("number " + obs.tokens.get("counter"));
-      });
   }
 }
