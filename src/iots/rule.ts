@@ -1,7 +1,7 @@
 import * as t from "io-ts";
 import * as tPromise from "io-ts-promise";
 
-import { PicoConditionCollection } from "./condition";
+import { PicoConditionCollection, PicoConditionEquality, PicoConditionLike } from "./condition";
 import { inspect } from "util";
 
 /*
@@ -23,10 +23,36 @@ const PicoActionSetVar = t.type({
 const PicoAction = t.union([PicoActionRule, PicoActionSetVar]);
 const PicoActionCollection = t.array(PicoAction);
 
+interface PicoOrCondition {
+  op: "or";
+  conditions: Array<PicoAndCondition | PicoOrCondition | PicoConditionLike | PicoConditionEquality>;
+}
+
+interface PicoAndCondition {
+  op: "and";
+  conditions: Array<PicoAndCondition | PicoOrCondition | PicoConditionLike | PicoConditionEquality>;
+}
+
+const PicoOrCondition: t.Type<PicoOrCondition> = t.recursion("OrCondition", () =>
+  t.type({
+    op: t.literal("or"),
+    conditions: t.array(t.union([PicoConditionEquality, PicoConditionLike, PicoOrCondition, PicoAndCondition]))
+  })
+);
+
+const PicoAndCondition: t.Type<PicoAndCondition> = t.recursion("AndCondition", () =>
+  t.type({
+    op: t.literal("and"),
+    conditions: t.array(t.union([PicoConditionEquality, PicoConditionLike, PicoOrCondition, PicoAndCondition]))
+  })
+);
+
+const PicoIfCondition = t.union([PicoOrCondition, PicoAndCondition]);
+
 const Rule = t.type(
   {
     label: t.string,
-    if: PicoConditionCollection,
+    if: PicoIfCondition,
     then: PicoActionCollection,
     else: PicoActionCollection
   },
@@ -35,17 +61,13 @@ const Rule = t.type(
 
 const plainRule = {
   label: "lop",
-  if: [
-    { op: "eq", token: "t", value: "v" },
-    {
-      op: "list",
-      traversal: "and",
-      conditions: [
-        { op: "eq", token: "t", value: "v" },
-        { op: "list", traversal: "or", conditions: [] }
-      ]
-    }
-  ],
+  if: {
+    op: "or",
+    conditions: [
+      { op: "eq", token: "t", value: "v" },
+      { op: "and", conditions: [] }
+    ]
+  },
   then: [{ act: "setvar", varName: "n1", varValue: "v1" }],
   else: []
 };
@@ -58,13 +80,22 @@ const r = tPromise.decode(Rule, plainRule);
 r.then(rule => {
   console.log("R = ", inspect(rule, false, 5));
 
-  rule.then.forEach(t => {
-    if (t.act == "rule") {
-      t.rule;
-    } else if (t.act == "setvar") {
-      t.varName;
-    }
-  });
+  if (rule.if.op === "and") {
+    rule.if.conditions.forEach(c => {
+      if (c.op === "eq") {
+        c.token;
+      }
+    });
+  }
+
+  switch (rule.if.op) {
+    case "and":
+      rule.if.conditions.forEach(cond => {
+        if (cond.op == "eq") {
+        }
+      });
+    case "or":
+  }
 }).catch(err => {
   console.log("err", err);
 });

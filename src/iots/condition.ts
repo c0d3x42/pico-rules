@@ -1,6 +1,6 @@
 import * as t from "io-ts";
 
-interface PicoConditionLike {
+export interface PicoConditionLike {
   op: "like";
   token: string;
   value: string;
@@ -14,7 +14,7 @@ export const PicoConditionLike = t.type(
   "PicoConditionLike"
 );
 
-interface PicoConditionEquality {
+export interface PicoConditionEquality {
   op: "eq";
   token: string;
   value: string;
