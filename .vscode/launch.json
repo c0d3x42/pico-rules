@@ -7,6 +7,14 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "Launch iots",
+      "program": "${workspaceFolder}/src/iots/rule.ts",
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "outFiles": ["${workspaceFolder}/dist/**/*.js"]
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "Launch t2",
       "program": "${workspaceFolder}/src/t2.ts",
       "preLaunchTask": "tsc: build - tsconfig.json",

@@ -1,63 +1,13 @@
 import * as t from "io-ts";
 import * as tPromise from "io-ts-promise";
 
-import { PicoConditionCollection, PicoConditionEquality, PicoConditionLike } from "./condition";
+import { Rule } from "./rules";
 import { inspect } from "util";
 
 /*
 const PicoCondition = t.type({ label: t.string });
 const PicoConditions = t.array(PicoCondition);
 */
-
-const PicoActionRule = t.type({
-  act: t.literal("rule"),
-  rule: t.array(t.string)
-});
-
-const PicoActionSetVar = t.type({
-  act: t.literal("setvar"),
-  varName: t.string,
-  varValue: t.string
-});
-
-const PicoAction = t.union([PicoActionRule, PicoActionSetVar]);
-const PicoActionCollection = t.array(PicoAction);
-
-interface PicoOrCondition {
-  op: "or";
-  conditions: Array<PicoAndCondition | PicoOrCondition | PicoConditionLike | PicoConditionEquality>;
-}
-
-interface PicoAndCondition {
-  op: "and";
-  conditions: Array<PicoAndCondition | PicoOrCondition | PicoConditionLike | PicoConditionEquality>;
-}
-
-const PicoOrCondition: t.Type<PicoOrCondition> = t.recursion("OrCondition", () =>
-  t.type({
-    op: t.literal("or"),
-    conditions: t.array(t.union([PicoConditionEquality, PicoConditionLike, PicoOrCondition, PicoAndCondition]))
-  })
-);
-
-const PicoAndCondition: t.Type<PicoAndCondition> = t.recursion("AndCondition", () =>
-  t.type({
-    op: t.literal("and"),
-    conditions: t.array(t.union([PicoConditionEquality, PicoConditionLike, PicoOrCondition, PicoAndCondition]))
-  })
-);
-
-const PicoIfCondition = t.union([PicoOrCondition, PicoAndCondition]);
-
-const Rule = t.type(
-  {
-    label: t.string,
-    if: PicoIfCondition,
-    then: PicoActionCollection,
-    else: PicoActionCollection
-  },
-  "PicoRule"
-);
 
 const plainRule = {
   label: "lop",
