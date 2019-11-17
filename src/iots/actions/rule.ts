@@ -7,17 +7,9 @@ export interface PicoActionRule {
   rule: Rule;
 }
 
-export const PicoActionRule = t.type({
-  act: t.literal("rule"),
-  rule: Rule
-});
-
-export const xPicoActionRule: t.Type<PicoActionRule> = t.recursion("PicoActionRule", Self =>
-  t.interface(
-    {
-      act: t.literal("rule"),
-      rule: Rule
-    },
-    "ActionRule"
-  )
+export const PicoActionRule: t.Type<PicoActionRule> = t.recursion("PicoActionRule", Self =>
+  t.type({
+    act: t.literal("rule"),
+    rule: Rule,
+  })
 );
