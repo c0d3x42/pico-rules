@@ -1,14 +1,14 @@
 import * as t from "io-ts";
 
 export interface PicoActionSetVar {
-  act: string;
+  act: "setvar";
   varName: string;
   varValue: string;
 }
 
 export const PicoActionSetVar: t.Type<PicoActionSetVar> = t.recursion("PicoActionSetVar", () =>
   t.type({
-    act: t.string,
+    act: t.literal("setvar"),
     varName: t.string,
     varValue: t.string,
   })
