@@ -3,6 +3,7 @@ import * as tPromise from "io-ts-promise";
 
 import { Rule } from "./rules";
 import { inspect } from "util";
+import { PicoRule } from "./logic/Rule";
 
 /*
 const PicoCondition = t.type({ label: t.string });
@@ -13,18 +14,21 @@ const plainRule = {
   label: "lop",
   if: {
     op: "or",
-    conditions: [{ op: "eq", token: "t", value: "v" }, { op: "and", conditions: [] }],
+    conditions: [
+      { op: "eq", token: "t", value: "v" },
+      { op: "and", conditions: [] }
+    ]
   },
   then: [
     { act: "setvar", varName: "n1", varValue: "v1" },
     {
       act: "rule",
       rule: {
-        label: "lop",
+        label: "lop2",
         if: {
           op: "eq",
           token: "ff",
-          value: "gg",
+          value: "gg"
         },
         then: [],
         else: [
@@ -38,19 +42,19 @@ const plainRule = {
                   {
                     op: "eq",
                     token: "t",
-                    value: "v",
-                  },
-                ],
+                    value: "v"
+                  }
+                ]
               },
               then: [],
-              else: [],
-            },
-          },
-        ],
-      },
-    },
+              else: []
+            }
+          }
+        ]
+      }
+    }
   ],
-  else: [],
+  else: []
 };
 
 const r1 = Rule.decode(plainRule);
@@ -80,6 +84,13 @@ r.then(rule => {
       });
     case "or":
   }
+
+  const pr = PicoRule.generate(rule);
+  pr.then(ppp => {
+    ppp.exec();
+  }).catch(err => {
+    console.log("ERR", err);
+  });
 }).catch(err => {
   console.log("err", err);
 });

@@ -10,6 +10,7 @@ export const PicoAction: t.Type<PicoActionRule | PicoActionSetVar> = t.recursion
 );
 
 export type PicoActionCollection = Array<PicoActionRule | PicoActionSetVar>;
+export type PicoAction = PicoActionRule | PicoActionSetVar;
 
 export const PicoActionCollection: t.Type<PicoActionCollection> = t.recursion("PicoActionCollection", () =>
   t.array(t.union([PicoActionRule, PicoActionSetVar]))
