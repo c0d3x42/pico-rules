@@ -19,7 +19,7 @@ export class PicoRule implements IPicoExec {
 
     const pif = await PicoIf.generate(rule.if);
     const pthen = await PicoThen.generate(rule.then);
-    const pelse = await PicoElse.generate(rule.then);
+    const pelse = await PicoElse.generate(rule.else);
 
     return new PicoRule(pif, pthen, pelse, rule.label);
   }
