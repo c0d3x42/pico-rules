@@ -10,6 +10,7 @@ import { PicoActionCollection, PicoAction, PicoActionSetVar, PicoActionRule } fr
 import { PicoContext } from "./Context";
 
 import createDebugLog, { Debugger } from "debug";
+import { v4 } from "uuid";
 const debug = createDebugLog("logic");
 
 interface IPicoExec {
@@ -23,15 +24,25 @@ export class PicoRule implements IPicoExec {
     const pthen = await PicoThen.generate(rule.then);
     const pelse = await PicoElse.generate(rule.else);
 
-    return new PicoRule(pif, pthen, pelse, rule.label);
+    if (rule.uuid === undefined) {
+      rule.uuid = v4();
+    }
+
+    return new PicoRule(pif, pthen, pelse, rule.label, rule.uuid);
   }
 
   debug: Debugger = debug.extend("rule");
 
-  constructor(private pIf: PicoIf, private pThen: PicoThen, private pElse: PicoElse, private label: string) {}
+  constructor(
+    private pIf: PicoIf,
+    private pThen: PicoThen,
+    private pElse: PicoElse,
+    private label: string,
+    private uuid: string
+  ) {}
 
   public exec(ctx: PicoContext) {
-    this.debug("exec: " + this.label);
+    this.debug("exec: " + this.label, this.uuid);
     if (this.pIf.exec(ctx)) {
       this.pThen.exec(ctx);
     } else {

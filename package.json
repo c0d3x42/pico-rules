@@ -29,6 +29,7 @@
     "inversify": "^5.0.1",
     "io-ts": "^2.0.1",
     "io-ts-promise": "^2.0.1",
+    "io-ts-types": "^0.5.2",
     "moment": "^2.24.0",
     "nanoid": "^2.1.6",
     "reflect-metadata": "^0.1.13",

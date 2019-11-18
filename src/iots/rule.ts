@@ -12,6 +12,7 @@ const PicoConditions = t.array(PicoCondition);
 */
 
 const plainRule = {
+  uuid: "f748f43b-f029-47ee-9424-9d5e58b87cb0^",
   label: "lop",
   if: {
     op: "or",
@@ -91,9 +92,13 @@ r.then(rule => {
     const ctx = new PicoContext();
     ctx.setVar("node", "localhost");
     ppp.exec(ctx);
-  }).catch(err => {
-    console.log("ERR", err);
-  });
+  })
+    .catch(err => {
+      console.log("ERR", err);
+    })
+    .then(_ => {
+      console.log("Encoded: ", inspect(Rule.encode(rule), false, 15));
+    });
 }).catch(err => {
   console.log("err", err);
 });
