@@ -4,6 +4,7 @@ import * as tPromise from "io-ts-promise";
 import { Rule } from "./rules";
 import { inspect } from "util";
 import { PicoRule } from "./logic/Rule";
+import { PicoContext } from "./logic/Context";
 
 /*
 const PicoCondition = t.type({ label: t.string });
@@ -15,7 +16,7 @@ const plainRule = {
   if: {
     op: "or",
     conditions: [
-      { op: "eq", token: "t", value: "v" },
+      { op: "eq", token: "node", value: "localhost" },
       { op: "and", conditions: [] }
     ]
   },
@@ -87,7 +88,9 @@ r.then(rule => {
 
   const pr = PicoRule.generate(rule);
   pr.then(ppp => {
-    ppp.exec();
+    const ctx = new PicoContext();
+    ctx.setVar("node", "localhost");
+    ppp.exec(ctx);
   }).catch(err => {
     console.log("ERR", err);
   });

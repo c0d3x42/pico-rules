@@ -1,4 +1,3 @@
-import * as tPromise from "io-ts-promise";
 import { Rule } from "../rules";
 import {
   PicoIfCondition,
@@ -7,11 +6,14 @@ import {
   PicoAndCondition,
   PicoOrCondition
 } from "../conditions";
-import { OpConditions, AllConditionTypes } from "../conditions/op";
 import { PicoActionCollection, PicoAction, PicoActionSetVar, PicoActionRule } from "../actions";
+import { PicoContext } from "./Context";
+
+import createDebugLog, { Debugger } from "debug";
+const debug = createDebugLog("logic");
 
 interface IPicoExec {
-  exec(): boolean;
+  exec(ctx: PicoContext): boolean;
 }
 export class PicoRule implements IPicoExec {
   static async generate(rule: Rule) {
@@ -24,16 +26,16 @@ export class PicoRule implements IPicoExec {
     return new PicoRule(pif, pthen, pelse, rule.label);
   }
 
+  debug: Debugger = debug.extend("rule");
+
   constructor(private pIf: PicoIf, private pThen: PicoThen, private pElse: PicoElse, private label: string) {}
 
-  public exec() {
-    console.log("executing: " + this.label);
-    if (this.pIf.exec()) {
-      console.log("Rule THEN");
-      this.pThen.exec();
+  public exec(ctx: PicoContext) {
+    this.debug("exec: " + this.label);
+    if (this.pIf.exec(ctx)) {
+      this.pThen.exec(ctx);
     } else {
-      console.log("Rule ELSE");
-      this.pElse.exec();
+      this.pElse.exec(ctx);
     }
     return true;
   }
@@ -59,7 +61,9 @@ export abstract class PicoIf implements IPicoExec {
     return PicoIfNone.generate();
   }
 
-  abstract exec(): boolean;
+  abstract exec(ctx: PicoContext): boolean;
+
+  debug: Debugger = debug.extend("if");
 }
 
 export class PicoIfNone extends PicoIf {
@@ -67,7 +71,7 @@ export class PicoIfNone extends PicoIf {
     return new PicoIfNone();
   }
 
-  public exec() {
+  public exec(ctx: PicoContext) {
     return false;
   }
 }
@@ -79,9 +83,12 @@ export class PicoIfEquality extends PicoIf {
 
   constructor(private token: string, private value: string) {
     super();
+    this.debug = this.debug.extend("eq");
   }
-  exec() {
-    return false;
+  exec(ctx: PicoContext) {
+    const result = ctx.getVar(this.token) === this.value;
+    this.debug(`exec ${this.token} == ${this.value} / ${result}`);
+    return result;
   }
 }
 
@@ -92,9 +99,11 @@ export class PicoIfLike extends PicoIf {
 
   constructor(private token: string, private value: string) {
     super();
+    this.debug = this.debug.extend("like");
   }
 
-  exec() {
+  exec(ctx: PicoContext) {
+    this.debug(`exec ${this.token} / ${this.value}`);
     return false;
   }
 }
@@ -110,10 +119,12 @@ export class PicoAnd extends PicoIf {
 
   constructor(private pConditions: PicoIf[]) {
     super();
+    this.debug = this.debug.extend("and");
   }
 
-  exec() {
-    const result = this.pConditions.every(pc => pc.exec() === true);
+  exec(ctx: PicoContext) {
+    this.debug(`exec [] ${this.pConditions.length}`);
+    const result = this.pConditions.every(pc => pc.exec(ctx) === true);
     return result;
   }
 }
@@ -128,10 +139,12 @@ export class PicoOr extends PicoIf {
 
   constructor(private pConditions: PicoIf[]) {
     super();
+    this.debug = this.debug.extend("or");
   }
 
-  exec() {
-    const found = this.pConditions.find(pc => pc.exec() === true) ? true : false;
+  exec(ctx: PicoContext) {
+    this.debug(`exec [] ${this.pConditions.length}`);
+    const found = this.pConditions.find(pc => pc.exec(ctx) === true) ? true : false;
     return found;
   }
 }
@@ -148,7 +161,9 @@ export abstract class Action implements IPicoExec {
     throw new Error("unknown: ");
   }
 
-  abstract exec(): boolean;
+  abstract exec(ctx: PicoContext): boolean;
+
+  debug: Debugger = debug.extend("action");
 }
 
 export class ActionRule extends Action {
@@ -158,10 +173,12 @@ export class ActionRule extends Action {
   }
   constructor(private rule: PicoRule) {
     super();
+    this.debug = this.debug.extend("rule");
   }
 
-  public exec() {
-    return this.rule.exec();
+  public exec(ctx: PicoContext) {
+    this.debug(`exec`);
+    return this.rule.exec(ctx);
   }
 }
 
@@ -172,9 +189,11 @@ export class ActionSetVar extends Action {
 
   constructor(private varName: string, private varValue: string) {
     super();
+    this.debug = this.debug.extend("setvar");
   }
 
-  public exec() {
+  public exec(ctx: PicoContext) {
+    this.debug(`exec name=${this.varName}, value=${this.varValue}`);
     return true;
   }
 }
@@ -186,10 +205,13 @@ export class PicoThen implements IPicoExec {
     return new PicoThen(thens);
   }
 
+  debug: Debugger = debug.extend("then");
+
   constructor(private readonly actions: Action[]) {}
 
-  public exec() {
-    this.actions.every(action => action.exec());
+  public exec(ctx: PicoContext) {
+    this.debug(`exec`);
+    this.actions.every(action => action.exec(ctx));
     return true;
   }
 }
@@ -201,10 +223,12 @@ export class PicoElse implements IPicoExec {
     return new PicoElse(elses);
   }
 
+  debug: Debugger = debug.extend("else");
   constructor(private readonly actions: Action[]) {}
 
-  public exec() {
-    this.actions.every(action => action.exec());
+  public exec(ctx: PicoContext) {
+    this.debug(`exec`);
+    this.actions.every(action => action.exec(ctx));
     return true;
   }
 }
